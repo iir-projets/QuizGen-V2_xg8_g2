@@ -268,6 +268,15 @@
   background-color: rgba(13, 110, 253, 0.2);
 }
 
+.share-btn {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.share-btn:hover {
+  background-color: rgba(25, 135, 84, 0.2);
+}
+
 .delete-btn {
   background-color: rgba(220, 53, 69, 0.1);
   color: var(--danger-color);
@@ -294,3 +303,76 @@
     gap: 1rem;
   }
 }
+
+/* Barre latérale de partage */
+.share-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.share-sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.sidebar-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.share-quiz-title {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.share-link-box {
+  margin-bottom: 2rem;
+}
+
+.share-link-box label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.copy-input-group {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.copy-input-group input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+}
+

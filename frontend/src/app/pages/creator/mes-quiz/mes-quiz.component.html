@@ -80,12 +80,57 @@
         <button class="action-btn stats-btn">
           <i class="fas fa-chart-bar"></i> Stats
         </button>
+        <button class="action-btn share-btn" (click)="openShareSidebar(quiz)">
+          <i class="fas fa-share-alt"></i> Partager
+        </button>
         <button class="action-btn delete-btn" (click)="deleteQuiz(quiz.id)">
           <i class="fas fa-trash"></i> Supprimer
         </button>
       </div>
     </div>
   </div>
+
+  <!-- Barre latérale de partage -->
+  <div class="share-sidebar" [class.open]="sharePanel.open">
+    <div class="sidebar-header">
+      <h3>Partager le quiz</h3>
+      <button class="close-btn" (click)="closeShareSidebar()">×</button>
+    </div>
+    <div class="sidebar-content">
+      <div *ngIf="selectedQuiz" class="share-quiz-title">
+        <h4>{{ selectedQuiz.title }}</h4>
+      </div>
+      <div class="share-link-box">
+        <label>Lien de partage</label>
+        <div class="copy-input-group">
+          <input type="text" [value]="shareableLink" readonly #linkInput>
+          <button class="btn-copy" (click)="copyShareLink(linkInput)">
+            <i class="fas" [ngClass]="{'fa-check': isLinkCopied, 'fa-copy': !isLinkCopied}"></i>
+          </button>
+        </div>
+        <small *ngIf="isLinkCopied" class="copy-feedback">Lien copié!</small>
+      </div>
+      <div class="share-options">
+        <h5>Partager via</h5>
+        <div class="social-buttons">
+          <a href="javascript:void(0)" (click)="shareVia('facebook')" class="social-btn facebook">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="javascript:void(0)" (click)="shareVia('twitter')" class="social-btn twitter">
+            <i class="fab fa-twitter"></i>
+            <span>Twitter</span>
+          </a>
+          <a href="javascript:void(0)" (click)="shareVia('email')" class="social-btn email">
+            <i class="fas fa-envelope"></i>
+            <span>Email</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Overlay pour fermer la barre latérale en cliquant en dehors -->
+  <div class="sidebar-overlay" [class.open]="sharePanel.open" (click)="closeShareSidebar()"></div>
 </div>
 
 <app-footer></app-footer>

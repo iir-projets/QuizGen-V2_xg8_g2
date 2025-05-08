@@ -18,6 +18,10 @@ export class MesQuizComponent implements OnInit {
   quizzes: any[] = [];
   loading = true;
   error: string | null = null;
+  sharePanel = { open: false };
+  selectedQuiz: any = null;
+  shareableLink = '';
+  isLinkCopied = false;
 
   constructor(
     private quizService: QuizService,
@@ -90,6 +94,46 @@ export class MesQuizComponent implements OnInit {
           alert('Impossible de supprimer ce quiz. Veuillez réessayer plus tard.');
         }
       });
+    }
+  }
+
+  openShareSidebar(quiz: any): void {
+    this.selectedQuiz = quiz;
+    this.shareableLink = `${window.location.origin}/quiz/${quiz.id}`;
+    this.sharePanel.open = true;
+    this.isLinkCopied = false;
+  }
+
+  closeShareSidebar(): void {
+    this.sharePanel.open = false;
+  }
+
+  copyShareLink(inputElement: HTMLInputElement): void {
+    inputElement.select();
+    document.execCommand('copy');
+    this.isLinkCopied = true;
+    setTimeout(() => this.isLinkCopied = false, 2000);
+  }
+
+  shareVia(platform: string): void {
+    let shareUrl = '';
+    const quizUrl = encodeURIComponent(this.shareableLink);
+    const quizTitle = encodeURIComponent(this.selectedQuiz?.title || 'Mon Quiz');
+
+    switch(platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${quizUrl}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${quizUrl}&text=${quizTitle}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${quizTitle}&body=${quizUrl}`;
+        break;
+    }
+
+    if (shareUrl) {
+      window.open(shareUrl, '_blank');
     }
   }
 }
