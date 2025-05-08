@@ -1,0 +1,91 @@
+<app-header></app-header>
+
+<div class="quiz-container">
+  <div class="quiz-header">
+    <h1 class="quiz-title">Mes Quiz</h1>
+    <button class="create-quiz-btn" routerLink="/creer-quiz">
+      <i class="fas fa-plus"></i> Nouveau Quiz
+    </button>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement de vos quiz...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="error-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Liste vide -->
+  <div *ngIf="!loading && quizzes.length === 0" class="empty-state">
+    <div class="empty-content">
+      <i class="fas fa-clipboard-list"></i>
+      <h3>Aucun quiz créé pour le moment</h3>
+      <p>Commencez par créer votre premier quiz !</p>
+      <button class="primary-btn" routerLink="/creer-quiz">Créer un quiz</button>
+    </div>
+  </div>
+
+  <!-- Grille de cartes -->
+  <div *ngIf="quizzes.length > 0" class="quiz-grid">
+    <div class="quiz-card" *ngFor="let quiz of quizzes">
+      <div class="card-header">
+        <h3 class="quiz-name">{{ quiz.title }}</h3>
+        <span class="quiz-status" [ngClass]="{
+          'published': quiz.isPublic,
+          'draft': !quiz.isPublic
+        }">
+          {{ quiz.isPublic ? 'Publié' : 'Brouillon' }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <p class="quiz-description">{{ quiz.description || 'Aucune description' }}</p>
+
+        <div class="quiz-meta">
+          <div class="meta-item">
+            <i class="fas fa-layer-group"></i>
+            <span>{{ quiz.questions?.length || 0 }} questions</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-stopwatch"></i>
+            <span>{{ quiz.timeLimit }} min</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>{{ quiz.passingGrade }}% pour réussir</span>
+          </div>
+        </div>
+
+        <div class="quiz-dates">
+          <div class="date-item">
+            <span>Créé le</span>
+            <strong>{{ formatDate(quiz.createdAt) }}</strong>
+          </div>
+          <div *ngIf="quiz.publishDate" class="date-item">
+            <span>Publié le</span>
+            <strong>{{ formatDate(quiz.publishDate) }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="action-btn edit-btn" [routerLink]="['/edit-quiz', quiz.id]">
+          <i class="fas fa-edit"></i> Éditer
+        </button>
+        <button class="action-btn stats-btn">
+          <i class="fas fa-chart-bar"></i> Stats
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteQuiz(quiz.id)">
+          <i class="fas fa-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

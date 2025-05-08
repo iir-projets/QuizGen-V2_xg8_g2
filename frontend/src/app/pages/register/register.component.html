@@ -1,0 +1,62 @@
+<!-- register.component.html -->
+<div class="register-container">
+  <div class="header">
+    <h1>Créez votre compte</h1>
+  </div>
+
+  <div class="user-type-toggle">
+    <button [class.active]="!isCreator" (click)="toggleUserType()">
+      Je veux passer des quiz
+    </button>
+    <button [class.active]="isCreator" (click)="toggleUserType()">
+      Je veux créer des quiz
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="register-form">
+    <div class="form-group">
+      <label for="name">Nom</label>
+      <input
+        type="text"
+        id="name"
+        [(ngModel)]="user.name"
+        name="name"
+        placeholder="Votre nom"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        [(ngModel)]="user.email"
+        name="email"
+        placeholder="admin"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="password">Mot de passe</label>
+      <input
+        type="password"
+        id="password"
+        [(ngModel)]="user.password"
+        name="password"
+        placeholder="Entrez votre mot de passe"
+        required
+      >
+      <div class="password-hint">1 caractère min + chiffre</div>
+    </div>
+
+    <button type="submit" class="submit-button">
+      Commencer
+    </button>
+  </form>
+
+  <div class="login-link">
+    Déjà un compte ? <a routerLink="/login">Connexion</a>
+  </div>
+</div>

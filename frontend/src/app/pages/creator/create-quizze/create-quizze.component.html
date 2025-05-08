@@ -1,0 +1,247 @@
+<div class="quiz-config-container">
+  <!-- Section Configuration -->
+  <div class="section">
+    <div class="section-header" [class.active]="sections.config.open" (click)="toggleSection('config')">
+      <h2>Configuration du Quiz</h2>
+      <span class="toggle-icon">{{ sections.config.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="section-content" *ngIf="sections.config.open">
+      <div class="quiz-title">
+        <span>✏️</span>
+        <input type="text" placeholder="Titre du quiz" [(ngModel)]="quiz.title" required>
+      </div>
+
+      <div class="quiz-description">
+        <textarea placeholder="Description du quiz" [(ngModel)]="quiz.description" maxlength="200"></textarea>
+        <div class="char-count">{{ quiz.description || 0 }}/200</div>
+      </div>
+
+      <div class="quiz-settings">
+        <div class="setting">
+          <label for="domaine">Domaine/Catégorie</label>
+          <select id="domaine" [(ngModel)]="quiz.domaine">
+            <option value="0">Général</option>
+            <option value="1">Technologie</option>
+            <option value="2">Histoire</option>
+            <option value="3">Science</option>
+            <option value="4">Culture</option>
+            <option value="5">Sport</option>
+          </select>
+        </div>
+
+        <div class="setting">
+          <input type="checkbox" id="auto-correction" [(ngModel)]="quiz.autoCorrection">
+          <label for="auto-correction">Correction automatique</label>
+        </div>
+
+        <div class="setting">
+          <input type="checkbox" id="public-quiz" [(ngModel)]="quiz.isPublic">
+          <label for="public-quiz">Quiz public</label>
+        </div>
+
+        <div class="setting">
+          <label for="time-limit">Limite de temps (minutes)</label>
+          <select id="time-limit" [(ngModel)]="quiz.timeLimit">
+            <option value="5">5 min</option>
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="20">20 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Questions -->
+  <div class="section">
+    <div class="section-header" [class.active]="sections.questions.open" (click)="toggleSection('questions')">
+      <h2>Éditeur de Questions</h2>
+      <span class="toggle-icon">{{ sections.questions.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="section-content" *ngIf="sections.questions.open">
+      <div class="question" *ngFor="let question of quiz.questions; let i = index">
+        <div class="question-header">
+          <h3>Question {{i + 1}}</h3>
+          <select [(ngModel)]="question.type" (change)="onQuestionTypeChange(i)">
+            <option value="qcm">QCM</option>
+            <option value="vf">Vrai/Faux</option>
+            <option value="text">Réponse texte</option>
+          </select>
+          <button class="delete-btn" (click)="removeQuestion(i)">× Supprimer</button>
+        </div>
+
+        <div class="question-content">
+          <textarea placeholder="Énoncé de la question" [(ngModel)]="question.text" required></textarea>
+
+          <div class="question-meta">
+            <div class="score-input">
+              <label>Score :</label>
+              <input type="number" [(ngModel)]="question.score" min="0.5" step="0.5" value="1">
+            </div>
+            <div class="explanation-toggle" (click)="toggleExplanation(i)">
+              <span>{{ question.showExplanation ? '▼' : '▶' }} Explication</span>
+            </div>
+          </div>
+
+          <div class="explanation" *ngIf="question.showExplanation">
+            <textarea placeholder="Explication (optionnelle)" [(ngModel)]="question.explication"></textarea>
+          </div>
+
+          <!-- QCM Options -->
+          <div class="options" *ngIf="question.type === 'qcm'">
+            <div class="option" *ngFor="let option of question.options; let j = index">
+              <div class="option-controls">
+                <input type="text" [placeholder]="'Option ' + (j + 1)" [(ngModel)]="option.text" required>
+                <button class="delete-btn" (click)="removeOption(i, j)">×</button>
+              </div>
+              <div class="correct-answer">
+                <input type="checkbox" [id]="'correct-' + i + '-' + j" [(ngModel)]="option.isCorrect">
+                <label [for]="'correct-' + i + '-' + j">Bonne réponse</label>
+              </div>
+            </div>
+            <button class="button button-secondary" (click)="addOption(i)">+ Ajouter option</button>
+          </div>
+
+          <!-- Vrai/Faux Option -->
+          <div class="vf-options" *ngIf="question.type === 'vf'">
+            <div class="vf-option">
+              <label>
+                <input type="radio" [name]="'vf-' + i" [value]="true" [(ngModel)]="question.reponseCorrecte">
+                Vrai
+              </label>
+              <label>
+                <input type="radio" [name]="'vf-' + i" [value]="false" [(ngModel)]="question.reponseCorrecte">
+                Faux
+              </label>
+            </div>
+          </div>
+
+          <!-- Réponse texte (rien à afficher de plus) -->
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="button button-large" (click)="addQuestion()">+ Ajouter une question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section personnaaliser -->
+  <div class="section">
+    <div class="section-header" (click)="toggleSection('customization')">
+      <h2>Personnalisation</h2>
+      <span class="toggle-icon">{{ sections.customization.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="section-content" *ngIf="sections.customization?.open">
+      <div class="setting">
+        <label>Couleur principale</label>
+        <input type="color" [(ngModel)]="quiz.primaryColor" value="#9333EA">
+      </div>
+
+      <div class="setting">
+        <label>Thème</label>
+        <select [(ngModel)]="quiz.theme">
+          <option value="light">Clair</option>
+          <option value="dark">Sombre</option>
+          <option value="custom">Personnalisé</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>Message de fin</label>
+        <textarea placeholder="Message affiché après complétion du quiz..." [(ngModel)]="quiz.completionMessage"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section param avance -->
+  <div class="section">
+    <div class="section-header" (click)="toggleSection('advanced')">
+      <h2>Paramètres avancés</h2>
+      <span class="toggle-icon">{{ sections.advanced.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="section-content" *ngIf="sections.advanced?.open">
+      <div class="setting">
+        <input type="checkbox" id="randomize" [(ngModel)]="quiz.randomizeQuestions">
+        <label for="randomize">Mélanger les questions</label>
+      </div>
+
+      <div class="setting">
+        <input type="checkbox" id="show-results" [(ngModel)]="quiz.showResults">
+        <label for="show-results">Afficher les résultats immédiatement</label>
+      </div>
+
+      <div class="setting">
+        <label for="attempts">Nombre de tentatives autorisées</label>
+        <select id="attempts" [(ngModel)]="quiz.maxAttempts">
+          <option value="0">Illimité</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label for="passing-grade">Note de passage (%)</label>
+        <input type="number" id="passing-grade" [(ngModel)]="quiz.passingGrade" min="0" max="100">
+      </div>
+    </div>
+  </div>
+
+  <!-- Section partage -->
+  <div class="section">
+    <div class="section-header" (click)="toggleSection('sharing')">
+      <h2>Partage et publication</h2>
+      <span class="toggle-icon">{{ sections.sharing.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="section-content" *ngIf="sections.sharing?.open">
+      <div class="setting">
+        <label>Date de publication</label>
+        <input type="datetime-local" [(ngModel)]="quiz.publishDate">
+      </div>
+
+      <div class="setting">
+        <label>Date d'expiration</label>
+        <input type="datetime-local" [(ngModel)]="quiz.expiryDate">
+      </div>
+
+      <div class="setting">
+        <label>Lien de partage</label>
+        <div class="share-link">
+          <input type="text" [value]="generateShareLink()" readonly>
+          <button (click)="copyShareLink()">Copier</button>
+        </div>
+      </div>
+
+      <div class="setting">
+        <label>Intégration</label>
+        <textarea readonly>{{ generateEmbedCode() }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ajoutez cette section juste avant la fermeture du div principal -->
+  <button
+    class="button button-primary button-large"
+    (click)="submitQuiz()"
+    [disabled]="!isQuizValid() || isSubmitting"
+    [class.disabled]="!isQuizValid() || isSubmitting">
+
+    <span *ngIf="!isSubmitting">Enregistrer le Quiz</span>
+    <span *ngIf="isSubmitting">
+    <span class="spinner"></span> Enregistrement...
+  </span>
+  </button>
+
+  <div *ngIf="submitError" class="error-message">
+    {{ submitError }}
+  </div>
+</div>

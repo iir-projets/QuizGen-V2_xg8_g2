@@ -1,0 +1,60 @@
+<div class="question-editor-container">
+  <div class="main-content">
+    <div class="section">
+      <div class="section-header" (click)="toggleSection('questions')">
+        <h2>Éditeur de Questions</h2>
+        <span class="toggle-icon">{{ sections.questions.open ? '▼' : '▶' }}</span>
+      </div>
+
+      <div class="section-content" *ngIf="sections.questions.open">
+        <div class="quiz-info">
+          <input type="text" placeholder="Titre du quiz" [(ngModel)]="quiz.title">
+          <textarea placeholder="Description du quiz" [(ngModel)]="quiz.description"></textarea>
+        </div>
+
+        <div class="question" *ngFor="let question of quiz.questions; let i = index">
+          <!-- Contenu existant des questions -->
+        </div>
+
+        <button class="add-question" (click)="addQuestion()">+ Ajouter une question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" [class.open]="sections.sidebar.open">
+    <div class="sidebar-header" (click)="toggleSection('sidebar')">
+      <h2>Options de Publication</h2>
+      <span class="toggle-icon">{{ sections.sidebar.open ? '▼' : '▶' }}</span>
+    </div>
+
+    <div class="sidebar-content" *ngIf="sections.sidebar.open">
+      <div class="publish-section">
+        <button class="publish-btn" (click)="publishQuiz()" [disabled]="isPublished">
+          {{ isPublished ? 'Publié' : 'Publier le Quiz' }}
+        </button>
+
+        <div class="share-link" *ngIf="isPublished">
+          <p>Lien partageable :</p>
+          <div class="link-container">
+            <input type="text" [value]="shareableLink" readonly>
+            <button (click)="copyLink()">Copier</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="participants-section">
+        <h3>Participants</h3>
+        <button (click)="loadParticipants()">Charger les participants</button>
+
+        <div class="participants-list">
+          <select multiple size="5" [(ngModel)]="selectedParticipants">
+            <option *ngFor="let participant of participants" [value]="participant.id">
+              {{ participant.name }} ({{ participant.email }})
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

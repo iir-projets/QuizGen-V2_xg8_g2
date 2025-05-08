@@ -1,0 +1,41 @@
+<header class="header">
+  <div class="header-content">
+    <div class="logo">QuizCreator</div>
+
+    <!-- Navigation conditionnelle basée sur l'état de connexion -->
+    <nav class="nav-links" *ngIf="isLoggedIn()">
+      <!-- Lien vers Mes Quiz pour les creators -->
+      <a class="nav-link" routerLink="/mes-quiz" routerLinkActive="active" *ngIf="isCreator()">Mes Quiz</a>
+
+      <!-- Autres liens de navigation basés sur le rôle -->
+      <a class="nav-link" routerLink="/creator" routerLinkActive="active" *ngIf="isCreator()">Créer un Quiz</a>
+      <a class="nav-link" routerLink="/statistiques" routerLinkActive="active" *ngIf="isCreator() || isAdmin()">Statistiques</a>
+      <a class="nav-link" routerLink="/profil" routerLinkActive="active">Profil</a>
+
+      <!-- Liens spécifiques pour les participants -->
+      <a class="nav-link" routerLink="/tous-les-quiz" routerLinkActive="active" *ngIf="isParticipant()">Tous les Quiz</a>
+      <a class="nav-link" routerLink="/mes-resultats" routerLinkActive="active" *ngIf="isParticipant()">Mes Résultats</a>
+
+      <!-- Liens spécifiques pour les admins -->
+      <a class="nav-link" routerLink="/admin" routerLinkActive="active" *ngIf="isAdmin()">Tableau de bord</a>
+      <a class="nav-link" routerLink="/utilisateurs" routerLinkActive="active" *ngIf="isAdmin()">Gestion des utilisateurs</a>
+    </nav>
+
+    <div class="action-buttons">
+      <!-- Affichage conditionnel des boutons d'action pour les creators -->
+      <ng-container *ngIf="isCreator() && router.url.includes('/creer-quiz')">
+        <button class="save-draft">Enregistrer brouillon</button>
+        <button class="preview">Prévisualiser</button>
+      </ng-container>
+
+      <!-- Bouton de déconnexion toujours présent si connecté -->
+      <button class="logout-btn" *ngIf="isLoggedIn()" (click)="logout()">Déconnexion</button>
+
+      <!-- Boutons pour visiteurs non connectés -->
+      <ng-container *ngIf="!isLoggedIn()">
+        <button class="login-btn" [routerLink]="['/login']">Connexion</button>
+        <button class="register-btn" [routerLink]="['/register']">Inscription</button>
+      </ng-container>
+    </div>
+  </div>
+</header>
