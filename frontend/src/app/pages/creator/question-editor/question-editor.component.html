@@ -1,58 +1,93 @@
 <div class="question-editor-container">
   <div class="main-content">
-    <div class="section">
-      <div class="section-header" (click)="toggleSection('questions')">
-        <h2>Éditeur de Questions</h2>
-        <span class="toggle-icon">{{ sections.questions.open ? '▼' : '▶' }}</span>
-      </div>
+    <!-- Contenu principal existant -->
 
-      <div class="section-content" *ngIf="sections.questions.open">
-        <div class="quiz-info">
-          <input type="text" placeholder="Titre du quiz" [(ngModel)]="quiz.title">
-          <textarea placeholder="Description du quiz" [(ngModel)]="quiz.description"></textarea>
-        </div>
-
-        <div class="question" *ngFor="let question of quiz.questions; let i = index">
-          <!-- Contenu existant des questions -->
-        </div>
-
-        <button class="add-question" (click)="addQuestion()">+ Ajouter une question</button>
-      </div>
-    </div>
+    <!-- Bouton de partage flottant -->
+    <button class="share-button" (click)="openShareSidebar()" *ngIf="isPublished">
+      <i class="icon icon-share"></i>
+    </button>
   </div>
 
-  <!-- Sidebar -->
-  <div class="sidebar" [class.open]="sections.sidebar.open">
+  <!-- Sidebar moderne -->
+  <div class="sidebar" [class.collapsed]="!sections.sidebar.open">
     <div class="sidebar-header" (click)="toggleSection('sidebar')">
-      <h2>Options de Publication</h2>
-      <span class="toggle-icon">{{ sections.sidebar.open ? '▼' : '▶' }}</span>
+      <div class="header-content">
+        <i class="icon" [class]="sections.sidebar.open ? 'icon-chevron-right' : 'icon-chevron-left'"></i>
+        <h3>Publication</h3>
+      </div>
     </div>
 
     <div class="sidebar-content" *ngIf="sections.sidebar.open">
-      <div class="publish-section">
-        <button class="publish-btn" (click)="publishQuiz()" [disabled]="isPublished">
-          {{ isPublished ? 'Publié' : 'Publier le Quiz' }}
-        </button>
-
-        <div class="share-link" *ngIf="isPublished">
-          <p>Lien partageable :</p>
-          <div class="link-container">
-            <input type="text" [value]="shareableLink" readonly>
-            <button (click)="copyLink()">Copier</button>
+      <!-- Section de publication -->
+      <div class="card">
+        <div class="card-header">
+          <i class="icon icon-upload"></i>
+          <h4>Publier le quiz</h4>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="quiz.isPublic">
+              <span class="slider round"></span>
+            </label>
+            <span>Rendre public</span>
           </div>
+
+          <button class="btn-publish" (click)="publishQuiz()" [disabled]="isPublished || isLoading">
+            <span *ngIf="!isLoading">{{ isPublished ? 'Publié' : 'Publier' }}</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
         </div>
       </div>
 
-      <div class="participants-section">
-        <h3>Participants</h3>
-        <button (click)="loadParticipants()">Charger les participants</button>
+      <!-- Section de partage -->
+      <div class="card" *ngIf="isPublished">
+        <div class="card-header">
+          <i class="icon icon-link"></i>
+          <h4>Partager</h4>
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <input type="text" [value]="shareableLink" readonly>
+            <button class="btn-copy" (click)="copyLink()">
+              <i class="icon" [class]="isLinkCopied ? 'icon-check' : 'icon-copy'"></i>
+            </button>
+          </div>
+          <small *ngIf="isLinkCopied" class="copy-feedback">Lien copié!</small>
+        </div>
+      </div>
 
-        <div class="participants-list">
-          <select multiple size="5" [(ngModel)]="selectedParticipants">
-            <option *ngFor="let participant of participants" [value]="participant.id">
-              {{ participant.name }} ({{ participant.email }})
-            </option>
-          </select>
+      <!-- Section participants -->
+      <div class="card">
+        <div class="card-header">
+          <i class="icon icon-users"></i>
+          <h4>Participants</h4>
+        </div>
+        <div class="card-body">
+          <div class="search-box">
+            <input type="text" placeholder="Rechercher...">
+            <i class="icon icon-search"></i>
+          </div>
+
+          <div class="participants-list">
+            <div class="participant-item" *ngFor="let participant of participants">
+              <label class="checkbox-container">
+                <input type="checkbox"
+                       [checked]="selectedParticipants.includes(participant.id)"
+                       (change)="toggleParticipantSelection(participant.id)">
+                <span class="checkmark"></span>
+                <div class="participant-info">
+                  <span class="name">{{ participant.name }}</span>
+                  <span class="email">{{ participant.email }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn-load" (click)="loadParticipants()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Charger plus</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
         </div>
       </div>
     </div>
