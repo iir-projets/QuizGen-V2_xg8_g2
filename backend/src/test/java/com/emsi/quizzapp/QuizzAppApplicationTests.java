@@ -1,4 +1,4 @@
-package com.lachguer.quizzapp;
+package com.emsi.quizzapp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
