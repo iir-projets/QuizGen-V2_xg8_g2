@@ -14,15 +14,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Request maximum available permissions
-permissions:
-  contents: write  # This is typically available even with restricted settings
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Re-declare at job level for clarity
 
     steps:
     - uses: actions/checkout@v4
@@ -38,8 +32,3 @@ jobs:
       run: |
         cd backend
         mvn -B package -DskipTests
-    
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
-      with:
-        directory: 'backend'
