@@ -19,9 +19,11 @@ export class MesQuizComponent implements OnInit {
   loading = true;
   error: string | null = null;
   sharePanel = { open: false };
+  detailsPanel = { open: false };
   selectedQuiz: any = null;
   shareableLink = '';
   isLinkCopied = false;
+  qrCodeUrl = '';
 
   constructor(
     private quizService: QuizService,
@@ -53,27 +55,27 @@ export class MesQuizComponent implements OnInit {
     if (dateInput instanceof Date) {
       return dateInput;
     }
-
     if (Array.isArray(dateInput)) {
-      // Format: [2025,5,7,15,8] -> année, mois (1-12), jour, heure, minute
       return new Date(
         dateInput[0],
-        dateInput[1] - 1, // Les mois sont 0-indexés dans Date
+        dateInput[1] - 1,
         dateInput[2],
         dateInput[3],
         dateInput[4]
       );
     }
-
     if (typeof dateInput === 'string') {
       return new Date(dateInput);
     }
-
-    return new Date(); // Fallback si le format n'est pas reconnu
+    return new Date();
   }
 
   formatDate(date: Date): string {
     return this.datePipe.transform(date, 'dd/MM/yyyy') || '';
+  }
+
+  formatDateTime(date: Date): string {
+    return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm') || '';
   }
 
   private handleError(err: any): void {
@@ -100,12 +102,26 @@ export class MesQuizComponent implements OnInit {
   openShareSidebar(quiz: any): void {
     this.selectedQuiz = quiz;
     this.shareableLink = `${window.location.origin}/quiz/${quiz.id}`;
+    this.generateQRCode();
     this.sharePanel.open = true;
     this.isLinkCopied = false;
   }
 
   closeShareSidebar(): void {
     this.sharePanel.open = false;
+  }
+
+  generateQRCode(): void {
+    this.qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(this.shareableLink)}`;
+  }
+
+  openDetailsPopup(quiz: any): void {
+    this.selectedQuiz = quiz;
+    this.detailsPanel.open = true;
+  }
+
+  closeDetailsPopup(): void {
+    this.detailsPanel.open = false;
   }
 
   copyShareLink(inputElement: HTMLInputElement): void {
@@ -126,6 +142,12 @@ export class MesQuizComponent implements OnInit {
         break;
       case 'twitter':
         shareUrl = `https://twitter.com/intent/tweet?url=${quizUrl}&text=${quizTitle}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${quizUrl}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${quizTitle}%20${quizUrl}`;
         break;
       case 'email':
         shareUrl = `mailto:?subject=${quizTitle}&body=${quizUrl}`;

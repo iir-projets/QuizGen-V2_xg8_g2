@@ -77,8 +77,8 @@
         <button class="action-btn edit-btn" [routerLink]="['/edit-quiz', quiz.id]">
           <i class="fas fa-edit"></i> Éditer
         </button>
-        <button class="action-btn stats-btn">
-          <i class="fas fa-chart-bar"></i> Stats
+        <button class="action-btn details-btn" (click)="openDetailsPopup(quiz)">
+          <i class="fas fa-info-circle"></i> Détails
         </button>
         <button class="action-btn share-btn" (click)="openShareSidebar(quiz)">
           <i class="fas fa-share-alt"></i> Partager
@@ -90,16 +90,26 @@
     </div>
   </div>
 
-  <!-- Barre latérale de partage -->
+  <!-- Barre latérale de partage sophistiquée -->
   <div class="share-sidebar" [class.open]="sharePanel.open">
     <div class="sidebar-header">
-      <h3>Partager le quiz</h3>
-      <button class="close-btn" (click)="closeShareSidebar()">×</button>
+      <h3>Partager ce quiz</h3>
+      <button class="close-btn" (click)="closeShareSidebar()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div class="sidebar-content">
       <div *ngIf="selectedQuiz" class="share-quiz-title">
         <h4>{{ selectedQuiz.title }}</h4>
+        <p class="quiz-status-text">
+          <i class="fas" [ngClass]="{
+            'fa-globe': selectedQuiz.isPublic,
+            'fa-lock': !selectedQuiz.isPublic
+          }"></i>
+          {{ selectedQuiz.isPublic ? 'Quiz public' : 'Quiz privé' }}
+        </p>
       </div>
+
       <div class="share-link-box">
         <label>Lien de partage</label>
         <div class="copy-input-group">
@@ -108,10 +118,18 @@
             <i class="fas" [ngClass]="{'fa-check': isLinkCopied, 'fa-copy': !isLinkCopied}"></i>
           </button>
         </div>
-        <small *ngIf="isLinkCopied" class="copy-feedback">Lien copié!</small>
+        <small [class.show]="isLinkCopied" class="copy-feedback">
+          <i class="fas fa-check-circle"></i> Lien copié dans le presse-papiers
+        </small>
       </div>
+
+      <div class="qr-code-container" *ngIf="qrCodeUrl">
+        <img [src]="qrCodeUrl" alt="QR Code" class="qr-code">
+        <p class="qr-code-caption">Scannez ce QR Code pour accéder au quiz</p>
+      </div>
+
       <div class="share-options">
-        <h5>Partager via</h5>
+        <h5>Partager directement</h5>
         <div class="social-buttons">
           <a href="javascript:void(0)" (click)="shareVia('facebook')" class="social-btn facebook">
             <i class="fab fa-facebook-f"></i>
@@ -121,16 +139,97 @@
             <i class="fab fa-twitter"></i>
             <span>Twitter</span>
           </a>
+          <a href="javascript:void(0)" (click)="shareVia('linkedin')" class="social-btn linkedin">
+            <i class="fab fa-linkedin-in"></i>
+            <span>LinkedIn</span>
+          </a>
+          <a href="javascript:void(0)" (click)="shareVia('whatsapp')" class="social-btn whatsapp">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+          </a>
           <a href="javascript:void(0)" (click)="shareVia('email')" class="social-btn email">
             <i class="fas fa-envelope"></i>
             <span>Email</span>
           </a>
         </div>
       </div>
+
+      <div class="share-tips">
+        <h5>Conseils de partage</h5>
+        <ul class="tips-list">
+          <li><i class="fas fa-lightbulb"></i> Partagez sur les réseaux pour plus de participants</li>
+          <li><i class="fas fa-lightbulb"></i> Envoyez par email pour un public ciblé</li>
+          <li><i class="fas fa-lightbulb"></i> Intégrez le QR Code dans vos supports imprimés</li>
+          <li><i class="fas fa-lightbulb"></i> Utilisez WhatsApp pour partager rapidement</li>
+        </ul>
+      </div>
     </div>
   </div>
-  <!-- Overlay pour fermer la barre latérale en cliquant en dehors -->
+
+  <!-- Popup de détails du quiz -->
+  <div class="details-popup" [class.open]="detailsPanel.open">
+    <div class="popup-header">
+      <h3>Détails du quiz</h3>
+      <button class="popup-close-btn" (click)="closeDetailsPopup()">×</button>
+    </div>
+    <div class="popup-content" *ngIf="selectedQuiz">
+      <div class="quiz-info-grid">
+        <div class="quiz-info-item">
+          <h4>Titre</h4>
+          <p>{{ selectedQuiz.title }}</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Description</h4>
+          <p>{{ selectedQuiz.description || 'Aucune description' }}</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Statut</h4>
+          <p>{{ selectedQuiz.isPublic ? 'Publié' : 'Brouillon' }}</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Note de passage</h4>
+          <p>{{ selectedQuiz.passingGrade }}%</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Durée</h4>
+          <p>{{ selectedQuiz.timeLimit }} minutes</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Nombre de questions</h4>
+          <p>{{ selectedQuiz.questions?.length || 0 }}</p>
+        </div>
+        <div class="quiz-info-item">
+          <h4>Créé le</h4>
+          <p>{{ formatDateTime(selectedQuiz.createdAt) }}</p>
+        </div>
+        <div class="quiz-info-item" *ngIf="selectedQuiz.publishDate">
+          <h4>Publié le</h4>
+          <p>{{ formatDateTime(selectedQuiz.publishDate) }}</p>
+        </div>
+      </div>
+
+      <div class="questions-section" *ngIf="selectedQuiz.questions?.length > 0">
+        <h3>Questions</h3>
+        <div class="question-item" *ngFor="let question of selectedQuiz.questions; let i = index">
+          <div class="question-text">
+            <strong>Question {{ i + 1 }}:</strong> {{ question.text }}
+          </div>
+          <div class="question-answers" *ngIf="question.answers?.length > 0">
+            <div class="answer-item" *ngFor="let answer of question.answers">
+              <span [class.correct-answer]="answer.isCorrect">
+                {{ answer.text }}
+                <span *ngIf="answer.isCorrect"> (Correct)</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlays -->
   <div class="sidebar-overlay" [class.open]="sharePanel.open" (click)="closeShareSidebar()"></div>
+  <div class="popup-overlay" [class.open]="detailsPanel.open" (click)="closeDetailsPopup()"></div>
 </div>
 
 <app-footer></app-footer>
