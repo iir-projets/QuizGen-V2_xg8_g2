@@ -14,13 +14,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Request maximum available permissions
 permissions:
-  contents: write
-  checks: write
+  contents: write  # This is typically available even with restricted settings
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Re-declare at job level for clarity
 
     steps:
     - uses: actions/checkout@v4
