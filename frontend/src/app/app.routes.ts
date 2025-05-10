@@ -2,12 +2,13 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { CreatorComponent } from './pages/creator/creator.component';
-import { ParticipantComponent } from './pages/participant/participant.component';
 import { AuthGuard } from './core/auth.guard';
 import { AdminComponent } from './pages/admin/admin.component';
 
 import { CreateQuizzeComponent } from './pages/creator/create-quizze/create-quizze.component';
 import {MesQuizComponent} from './pages/creator/mes-quiz/mes-quiz.component';
+import {QuizComponent} from './pages/participant/quiz/quiz.component';
+import {HistoryComponent} from './pages/participant/history/history.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -32,7 +33,8 @@ export const routes: Routes = [
   },
   {
     path: 'participant',
-    component: ParticipantComponent,
+    component: QuizComponent,
+    // component: ParticipantComponent,
     canActivate: [AuthGuard],
     data: { roles: ['PARTICIPANT'] }
   },
@@ -50,5 +52,8 @@ export const routes: Routes = [
     component: MesQuizComponent,
     canActivate: [AuthGuard],
     data: { roles: ['CREATOR'] }
-  }
+  },
+
+  { path: 'quiz/:id', component: QuizComponent },
+  { path: 'history', component: HistoryComponent },
 ];

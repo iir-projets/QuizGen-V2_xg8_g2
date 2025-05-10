@@ -15,7 +15,9 @@ export class QuizService {
     private http: HttpClient,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+  }
+
 
   // Méthode pour créer un quiz
   createQuiz(quizData: any): Observable<any> {
@@ -42,7 +44,7 @@ export class QuizService {
     console.log('Envoi de requête de création de quiz avec token:', token.substring(0, 20) + '...');
     console.log('Rôle utilisateur:', this.authService.getUserRole());
 
-    return this.http.post(this.apiUrl, quizData, { headers }).pipe(
+    return this.http.post(this.apiUrl, quizData, {headers}).pipe(
       tap(response => {
         console.log('Quiz créé avec succès:', response);
       }),
@@ -55,7 +57,7 @@ export class QuizService {
           console.log('Session expirée, redirection vers login...');
           this.authService.logout();
           this.router.navigate(['/login'], {
-            queryParams: { reason: 'session_expired' }
+            queryParams: {reason: 'session_expired'}
           });
           return throwError(() => 'Session expirée');
         }
@@ -84,7 +86,7 @@ export class QuizService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<any[]>(`${this.apiUrl}/my-quizzes`, { headers }).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/my-quizzes`, {headers}).pipe(
       tap(quizzes => {
         console.log('Quiz récupérés avec succès:', quizzes);
       }),
@@ -95,7 +97,7 @@ export class QuizService {
           console.log('Session expirée, redirection vers login...');
           this.authService.logout();
           this.router.navigate(['/login'], {
-            queryParams: { reason: 'session_expired' }
+            queryParams: {reason: 'session_expired'}
           });
           return throwError(() => 'Session expirée');
         }
@@ -120,7 +122,7 @@ export class QuizService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete(`${this.apiUrl}/${quizId}`, { headers }).pipe(
+    return this.http.delete(`${this.apiUrl}/${quizId}`, {headers}).pipe(
       tap(() => {
         console.log('Quiz supprimé avec succès');
       }),
@@ -131,7 +133,7 @@ export class QuizService {
           console.log('Session expirée, redirection vers login...');
           this.authService.logout();
           this.router.navigate(['/login'], {
-            queryParams: { reason: 'session_expired' }
+            queryParams: {reason: 'session_expired'}
           });
           return throwError(() => 'Session expirée');
         }
@@ -158,12 +160,12 @@ export class QuizService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<any[]>(`${this.apiUrl}/creator/${creatorId}`, { headers }).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/creator/${creatorId}`, {headers}).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.authService.logout();
           this.router.navigate(['/login'], {
-            queryParams: { reason: 'session_expired' }
+            queryParams: {reason: 'session_expired'}
           });
         }
         return throwError(() => error.error?.message || 'Error fetching quizzes');

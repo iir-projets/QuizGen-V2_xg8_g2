@@ -5,6 +5,7 @@ import com.emsi.quizzapp.security.jwt.JwtAuthenticationFilter;
 import com.emsi.quizzapp.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -71,6 +72,8 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/public/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/participant/quizzes/{quizId}").hasAuthority("PARTICIPANT")
+                                .requestMatchers(HttpMethod.POST, "/api/participant/quizzes/{quizId}/submit").hasAuthority("PARTICIPANT")
                                 .requestMatchers("/api/quizzes/my-quizzes").authenticated()
                                 .requestMatchers("/api/quizzes/**").hasAuthority("CREATOR")
                                 .anyRequest().authenticated()
@@ -86,7 +89,6 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
