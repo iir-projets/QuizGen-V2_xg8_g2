@@ -1,9 +1,4 @@
-/* Global Styles */
-:host {
-  font-family: 'Inter', 'Roboto', sans-serif;
-}
-
-/* Top Bar Styles */
+/* Reuse top bar styles from history */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -43,8 +38,8 @@
   justify-content: center;
 }
 
-/* Main Content Styles */
-.history-container {
+/* Main Content */
+.quizzes-container {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
@@ -55,6 +50,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .header h1 {
@@ -70,16 +67,42 @@
   font-size: 24px;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.search-bar {
+  position: relative;
+}
+
+.search-bar input {
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
 .filters {
   display: flex;
-  gap: 24px;
+  gap: 16px;
 }
 
 .filters span {
   color: #6b7280;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 4px;
 }
 
@@ -89,12 +112,11 @@
   font-weight: 500;
 }
 
-/* Quiz Cards */
-.quiz-cards {
+/* Quiz Grid */
+.quiz-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
-  margin-bottom: 32px;
 }
 
 .quiz-card {
@@ -102,6 +124,13 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quiz-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-header {
@@ -120,109 +149,58 @@
   font-weight: 500;
 }
 
-.date {
-  color: #6b7280;
-  font-size: 14px;
+.difficulty {
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .quiz-title {
   font-size: 18px;
   font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #111827;
+}
+
+.quiz-description {
+  font-size: 14px;
+  color: #6b7280;
   margin: 0 0 16px 0;
-  color: #111827;
+  line-height: 1.5;
 }
 
-.quiz-score {
-  font-size: 24px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 24px;
-}
-
-.quiz-actions {
+.quiz-meta {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.action-btn {
+.meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: none;
-  border: none;
-  color: #9333EA;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-.action-btn:hover {
-  background-color: #f3e8ff;
-}
-
-.icon {
-  font-size: 16px;
-}
-
-/* Statistics Section */
-.stats-section {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.stats-section h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0 0 24px 0;
-  color: #111827;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.stat-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #6b7280;
 }
 
-.stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.stat-value.highlight {
-  color: #9333EA;
-}
-
-.export-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #9333EA;
-  color: white;
-  border: none;
-  border-radius: 6px;
+.meta-icon {
   font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.export-btn:hover {
-  background-color: #7e22ce;
+.quiz-status {
+  font-size: 12px;
+  color: #6b7280;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
 }
 
 /* Responsive Design */
@@ -230,15 +208,24 @@
   .header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
     gap: 16px;
+  }
+
+  .search-bar {
+    width: 100%;
+  }
+
+  .search-bar input {
+    width: 100%;
   }
 
   .filters {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
 }
