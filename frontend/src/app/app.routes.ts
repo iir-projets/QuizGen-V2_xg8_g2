@@ -9,6 +9,7 @@ import { CreateQuizzeComponent } from './pages/creator/create-quizze/create-quiz
 import {MesQuizComponent} from './pages/creator/mes-quiz/mes-quiz.component';
 import {QuizComponent} from './pages/participant/quiz/quiz.component';
 import {HistoryComponent} from './pages/participant/history/history.component';
+
 import {ListQuizzesComponent} from './pages/participant/list-quizzes/list-quizzes.component';
 
 export const routes: Routes = [
