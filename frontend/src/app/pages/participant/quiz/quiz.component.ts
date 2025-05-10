@@ -1,11 +1,26 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Quiz, QuizResponse, QuizResult} from '../../../shared/model/quiz.model';
-import {QuizParticipationService} from '../../../services/QuizParticipation.service';
-import {CommonModule} from '@angular/common';
-import {Question} from '../../../shared/model/question.model';
-import {Subscription} from 'rxjs';
-import {AuthService} from '../../../auth/auth.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../../auth/auth.service';
+
+interface Question {
+  id: number;
+  text: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
+}
+
+interface Quiz {
+  id: number;
+  title: string;
+  description: string;
+  questions: string; // JSON string
+  timeLimit: string;
+  autoCorrection: boolean;
+  showResults: boolean;
+}
 
 interface QuizResult {
   quizId: number;
@@ -13,19 +28,6 @@ interface QuizResult {
   score: number;
   passed: boolean;
   submissionDate: string;
-  scoreDetails?: {
-    totalCorrect: number;
-    totalQuestions: number;
-    questionResults: Array<{
-      questionId: number;
-      questionText: string;
-      questionType: string;
-      userAnswer: string;
-      isCorrect: boolean;
-      scoreObtained: number;
-      maxScore: number;
-    }>;
-  };
   correctAnswers?: { [key: number]: string };
   questionExplanations?: { [key: number]: string };
 }
@@ -52,11 +54,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private quizService: QuizParticipationService,
     private authService: AuthService,
     private router: Router
   ) {
-    this.quizId = parseInt(this.route.snapshot.paramMap.get('id') || '2');
+    this.quizId = parseInt(this.route.snapshot.paramMap.get('id') || '1');
   }
 
   ngOnInit(): void {
@@ -67,33 +68,50 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.errorMessage = null;
 
-    const quizSub = this.quizService.getQuizById(this.quizId).subscribe({
-      next: (quiz) => {
-        this.quiz = quiz;
-        try {
-          this.questions = JSON.parse(quiz.questions).map((q: any, index: number) => ({
-            id: q.id || index + 1,
-            text: q.text || 'Question',
-            options: q.options || [],
-            correctAnswer: q.correctAnswer || '',  // Ensure default value if undefined
-            explanation: q.explanation || ''       // Ensure default value if undefined
-          }));
-          this.timeLeft = this.parseTimeLimit(quiz.timeLimit || '00:05:00');
-          this.startTimer();
-        } catch (e) {
-          console.error('Error parsing questions', e);
-          this.handleError('Invalid quiz format');
-          this.questions = [];
+    // Données statiques pour le quiz
+    this.quiz = {
+      id: 1,
+      title: 'Quiz de Culture Générale',
+      description: 'Testez vos connaissances générales',
+      questions: JSON.stringify([
+        {
+          id: 1,
+          text: 'Quelle est la capitale de la France?',
+          options: ['Londres', 'Berlin', 'Paris', 'Madrid'],
+          correctAnswer: 'Paris',
+          explanation: 'Paris est la capitale de la France depuis le 5ème siècle.'
+        },
+        {
+          id: 2,
+          text: 'Quel est le plus grand océan du monde?',
+          options: ['Océan Atlantique', 'Océan Indien', 'Océan Arctique', 'Océan Pacifique'],
+          correctAnswer: 'Océan Pacifique',
+          explanation: "L'océan Pacifique couvre environ 1/3 de la surface terrestre."
+        },
+        {
+          id: 3,
+          text: 'Qui a peint la Joconde?',
+          options: ['Vincent van Gogh', 'Pablo Picasso', 'Léonard de Vinci', 'Michel-Ange'],
+          correctAnswer: 'Léonard de Vinci',
+          explanation: 'Léonard de Vinci a peint ce portrait au début du 16ème siècle.'
         }
-        this.loading = false;
-      },
-      error: (err) => {
-        this.handleError(err);
-        this.loading = false;
-      }
-    });
+      ]),
+      timeLimit: '00:05:00',
+      autoCorrection: true,
+      showResults: true
+    };
 
-    this.subscriptions.push(quizSub);
+    try {
+      this.questions = JSON.parse(this.quiz.questions);
+      this.timeLeft = this.parseTimeLimit(this.quiz.timeLimit);
+      this.startTimer();
+      this.loading = false;
+    } catch (e) {
+      console.error('Error parsing questions', e);
+      this.handleError('Invalid quiz format');
+      this.questions = [];
+      this.loading = false;
+    }
   }
 
   private handleError(error: any): void {
@@ -103,7 +121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (error.status === 401) {
       this.authService.logout();
-      this.router.navigate(['/login'], {queryParams: {returnUrl: this.router.url}});
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
     }
   }
 
@@ -133,7 +151,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   timeExpired(): void {
     clearInterval(this.timer);
     if (!this.quizResult) {
-      // this.submitQuiz();
+      this.submitQuiz();
     }
   }
 
@@ -155,52 +173,40 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* submitQuiz(): void {
-     if (this.timer) {
-       clearInterval(this.timer);
-     }
+  submitQuiz(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
 
-     if (!this.quiz) {
-       this.handleError('No quiz data available');
-       return;
-     }
+    // Calcul du score
+    let correctCount = 0;
+    const correctAnswers: { [key: number]: string } = {};
+    const questionExplanations: { [key: number]: string } = {};
 
-     const userId = this.authService.getCurrentUserId();
-     if (!userId) {
-       this.handleError('User not authenticated');
-       this.authService.logout();
-       this.router.navigate(['/login'], {queryParams: {returnUrl: this.router.url}});
-       return;
-     }
+    this.questions.forEach(question => {
+      correctAnswers[question.id] = question.correctAnswer;
+      if (question.explanation) {
+        questionExplanations[question.id] = question.explanation;
+      }
+      if (this.selectedAnswers[question.id] === question.correctAnswer) {
+        correctCount++;
+      }
+    });
 
-     const response: QuizResponse = {
-       quizId: this.quizId,
-       participantId: userId,
-       answers: this.selectedAnswers
-     };
+    const score = Math.round((correctCount / this.questions.length) * 100);
+    const passed = score >= 70; // Seuil de réussite à 70%
 
-     this.loading = true;
-     this.errorMessage = null;
-
-     const submitSub = this.quizService.submitQuiz(this.quizId, response).subscribe({
-       next: (result) => {
-         this.quizResult = result;
-         this.loading = false;
-       },
-       error: (err) => {
-         this.loading = false;
-         this.handleError(err);
-         if (typeof err === 'string' && err.includes('Session expired')) {
-           this.authService.logout();
-           this.router.navigate(['/login'], {
-             queryParams: {returnUrl: this.router.url, reason: 'session_expired'}
-           });
-         }
-       }
-     });
-
-     this.subscriptions.push(submitSub);
-   }*/
+    // Création du résultat statique
+    this.quizResult = {
+      quizId: this.quizId,
+      quizTitle: this.quiz?.title || 'Quiz',
+      score: score,
+      passed: passed,
+      submissionDate: new Date().toISOString(),
+      correctAnswers: correctAnswers,
+      questionExplanations: questionExplanations
+    };
+  }
 
   formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -212,7 +218,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizResult = null;
     this.currentQuestionIndex = 0;
     this.selectedAnswers = {};
-    this.loadQuiz();
+    this.timeLeft = this.parseTimeLimit(this.quiz?.timeLimit || '00:05:00');
+    this.startTimer();
   }
 
   ngOnDestroy(): void {
@@ -220,30 +227,5 @@ export class QuizComponent implements OnInit, OnDestroy {
       clearInterval(this.timer);
     }
     this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-
-  submitQuiz(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-
-    const userId = this.authService.getCurrentUserId();
-    const response: QuizResponse = {
-      quizId: this.quizId,
-      participantId: userId,
-      answers: this.selectedAnswers,
-    };
-
-    this.loading = true;
-    this.quizService.submitQuiz(this.quizId, response).subscribe({
-      next: (result) => {
-        this.quizResult = result;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.handleError(err);
-      }
-    });
   }
 }

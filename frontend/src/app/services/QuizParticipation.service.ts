@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Quiz, QuizResponse, QuizResult } from '../shared/model/quiz.model';
+import { Quiz, QuizResponse, QuizResult } from '../shared/model/Quiz.model';
 import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
 

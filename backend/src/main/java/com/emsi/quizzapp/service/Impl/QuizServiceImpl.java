@@ -2,7 +2,6 @@ package com.emsi.quizzapp.service.Impl;
 
 import com.emsi.quizzapp.Repository.QuizRepository;
 import com.emsi.quizzapp.beans.Quiz;
-
 import com.emsi.quizzapp.exception.QuizNotFoundException;
 import com.emsi.quizzapp.service.facade.QuizService;
 import com.emsi.quizzapp.ws.converter.QuizConverter;
@@ -83,16 +82,6 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     @Override
     public List<QuizDTO> findAllPublicQuizzes() {
         return quizRepository.findByIsPublicTrue()
@@ -114,7 +103,7 @@ public class QuizServiceImpl implements QuizService {
                 .orElseThrow(() -> new QuizNotFoundException("Quiz not found with id: " + id));
     }
 
-   // @Override
+    // @Override
 /*    public QuizResultDTO submitQuiz(Long quizId, QuizResponseDTO responseDTO) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new QuizNotFoundException("Quiz not found with id: " + quizId));
@@ -146,7 +135,8 @@ public class QuizServiceImpl implements QuizService {
         try {
             List<Question> questions = objectMapper.readValue(
                     quiz.getQuestions(),
-                    new TypeReference<List<Question>>() {}
+                    new TypeReference<List<Question>>() {
+                    }
             );
 
             Map<Long, String> participantAnswers = responseDTO.getAnswers();
@@ -169,7 +159,8 @@ public class QuizServiceImpl implements QuizService {
         try {
             List<Question> questions = objectMapper.readValue(
                     quiz.getQuestions(),
-                    new TypeReference<List<Question>>() {}
+                    new TypeReference<List<Question>>() {
+                    }
             );
 
             return questions.stream()
@@ -186,7 +177,8 @@ public class QuizServiceImpl implements QuizService {
         try {
             List<Question> questions = objectMapper.readValue(
                     questionsJson,
-                    new TypeReference<List<Question>>() {}
+                    new TypeReference<List<Question>>() {
+                    }
             );
 
             questions.forEach(q -> q.setCorrectAnswer(null));
@@ -204,19 +196,46 @@ public class QuizServiceImpl implements QuizService {
         private String explanation;
 
         // Getters and Setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-        public String getText() { return text; }
-        public void setText(String text) { this.text = text; }
-        public List<String> getOptions() { return options; }
-        public void setOptions(List<String> options) { this.options = options; }
-        public String getCorrectAnswer() { return correctAnswer; }
-        public void setCorrectAnswer(String correctAnswer) { this.correctAnswer = correctAnswer; }
-        public String getExplanation() { return explanation; }
-        public void setExplanation(String explanation) { this.explanation = explanation; }
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public List<String> getOptions() {
+            return options;
+        }
+
+        public void setOptions(List<String> options) {
+            this.options = options;
+        }
+
+        public String getCorrectAnswer() {
+            return correctAnswer;
+        }
+
+        public void setCorrectAnswer(String correctAnswer) {
+            this.correctAnswer = correctAnswer;
+        }
+
+        public String getExplanation() {
+            return explanation;
+        }
+
+        public void setExplanation(String explanation) {
+            this.explanation = explanation;
+        }
     }
-
-
 
 
     @Override
@@ -234,11 +253,11 @@ public class QuizServiceImpl implements QuizService {
         result.setScore((int) scoreDetails.get("score"));
         result.setPassed(result.getScore() >= quiz.getPassingGrade());
         result.setSubmissionDate(LocalDateTime.now());
-        result.setScoreDetails(scoreDetails);
+//        result.setScoreDetails(scoreDetails);
 
         if (quiz.getAutoCorrection() && quiz.getShowResults()) {
             result.setCorrectAnswers(getCorrectAnswers(quiz));
-            result.setQuestionExplanations(getQuestionExplanations(quiz));
+//            result.setQuestionExplanations(getQuestionExplanations(quiz));
         }
 
         return result;
@@ -248,7 +267,8 @@ public class QuizServiceImpl implements QuizService {
         try {
             List<Map<String, Object>> questions = objectMapper.readValue(
                     quiz.getQuestions(),
-                    new TypeReference<List<Map<String, Object>>>() {}
+                    new TypeReference<List<Map<String, Object>>>() {
+                    }
             );
 
             Map<Long, String> participantAnswers = responseDTO.getAnswers();
@@ -327,7 +347,8 @@ public class QuizServiceImpl implements QuizService {
         try {
             List<Map<String, Object>> questions = objectMapper.readValue(
                     quiz.getQuestions(),
-                    new TypeReference<List<Map<String, Object>>>() {}
+                    new TypeReference<List<Map<String, Object>>>() {
+                    }
             );
 
             return questions.stream()

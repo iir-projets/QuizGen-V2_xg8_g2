@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { CreatorComponent } from './pages/creator/creator.component';
-import { ParticipantComponent } from './pages/participant/participant.component';
 import { AuthGuard } from './core/auth.guard';
 import { AdminComponent } from './pages/admin/admin.component';
 

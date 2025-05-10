@@ -21,8 +21,6 @@ export interface Quiz {
   creatorId: number;
 }
 
-
-
 export interface QuizResponse {
   quizId: number;
   participantId: number;
