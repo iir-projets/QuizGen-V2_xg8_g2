@@ -300,4 +300,6 @@ export class CreateQuizzeComponent {
 
     return true;
   }
+
+  protected readonly String = String;
 }

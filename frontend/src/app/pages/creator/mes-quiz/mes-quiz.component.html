@@ -78,7 +78,7 @@
           <i class="fas fa-edit"></i> Éditer
         </button>
         <button class="action-btn stats-btn">
-          <i class="fas fa-chart-bar"></i> Stats
+          <i class="fas fa-chart-bar"></i> Voir
         </button>
         <button class="action-btn share-btn" (click)="openShareSidebar(quiz)">
           <i class="fas fa-share-alt"></i> Partager
@@ -91,15 +91,22 @@
   </div>
 
   <!-- Barre latérale de partage -->
+  <!-- Overlay pour fermer la barre latérale en cliquant en dehors -->
+  <!-- Barre latérale de partage -->
+  <!-- Barre latérale de partage (version corrigée) -->
   <div class="share-sidebar" [class.open]="sharePanel.open">
     <div class="sidebar-header">
       <h3>Partager le quiz</h3>
-      <button class="close-btn" (click)="closeShareSidebar()">×</button>
+      <button class="close-btn" (click)="closeShareSidebar()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div class="sidebar-content">
       <div *ngIf="selectedQuiz" class="share-quiz-title">
         <h4>{{ selectedQuiz.title }}</h4>
       </div>
+
+      <!-- Lien de partage - déplacé en haut -->
       <div class="share-link-box">
         <label>Lien de partage</label>
         <div class="copy-input-group">
@@ -108,8 +115,30 @@
             <i class="fas" [ngClass]="{'fa-check': isLinkCopied, 'fa-copy': !isLinkCopied}"></i>
           </button>
         </div>
-        <small *ngIf="isLinkCopied" class="copy-feedback">Lien copié!</small>
+        <small *ngIf="isLinkCopied" class="copy-feedback">Lien copié dans le presse-papiers!</small>
       </div>
+
+      <!-- Section QR Code - déplacé après le lien -->
+      <div class="qr-code-section">
+        <div class="qr-code-container">
+          <div *ngIf="shareableLink; else qrPlaceholder" class="qr-code">
+            <qrcode [qrdata]="shareableLink" [width]="160" [errorCorrectionLevel]="'M'"></qrcode>
+          </div>
+          <ng-template #qrPlaceholder>
+            <div class="qr-code-placeholder">
+              Le QR Code apparaîtra ici
+            </div>
+          </ng-template>
+        </div>
+        <div class="qr-code-actions">
+          <button class="qr-code-btn download-btn">
+            <i class="fas fa-download"></i> Télécharger
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Options de partage -->
       <div class="share-options">
         <h5>Partager via</h5>
         <div class="social-buttons">
@@ -129,8 +158,11 @@
       </div>
     </div>
   </div>
+
   <!-- Overlay pour fermer la barre latérale en cliquant en dehors -->
   <div class="sidebar-overlay" [class.open]="sharePanel.open" (click)="closeShareSidebar()"></div>
+
+
 </div>
 
 <app-footer></app-footer>

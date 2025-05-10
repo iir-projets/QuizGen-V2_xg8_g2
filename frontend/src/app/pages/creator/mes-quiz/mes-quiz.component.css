@@ -1,4 +1,295 @@
-/* Variables de couleur */
+/* Barre latérale de partage améliorée */
+.share-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.share-sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-btn:hover {
+  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.share-quiz-title {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.share-quiz-title h4 {
+  margin: 0;
+  color: var(--dark-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Section QR Code */
+.qr-code-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--light-color);
+  border-radius: 12px;
+  border: 1px dashed var(--primary-color);
+}
+
+.qr-code-container {
+  width: 180px;
+  height: 180px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.qr-code-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.qr-code-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.qr-code-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.download-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.download-btn:hover {
+  background: var(--secondary-color);
+}
+
+.copy-btn {
+  background: rgba(108, 99, 255, 0.1);
+  color: var(--primary-color);
+}
+
+.copy-btn:hover {
+  background: rgba(108, 99, 255, 0.2);
+}
+
+/* Section lien de partage */
+.share-link-box {
+  margin-bottom: 1.5rem;
+}
+
+.share-link-box label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.copy-input-group {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.copy-input-group:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+}
+
+.copy-input-group input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background: var(--light-color);
+}
+
+.copy-input-group input:focus {
+  outline: none;
+}
+
+.btn-copy {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-copy:hover {
+  background: var(--secondary-color);
+}
+
+.copy-feedback {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--success-color);
+  text-align: right;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Options de partage */
+.share-options {
+  margin-top: auto;
+}
+
+.share-options h5 {
+  margin: 1rem 0 0.75rem;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.social-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.social-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.social-btn i {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.social-btn.facebook {
+  background: #3b5998;
+}
+
+.social-btn.twitter {
+  background: #1da1f2;
+}
+
+.social-btn.email {
+  background: #6c757d;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}/* Variables de couleur */
 :root {
   --primary-color: #6c63ff;
   --secondary-color: #4d44db;
@@ -375,4 +666,80 @@
   border-right: none;
   border-radius: 8px 0 0 8px;
 }
+
+
+
+
+
+
+/* Styles existants conservés... */
+
+/* Nouveaux styles pour la réorganisation */
+.share-link-box {
+  margin-bottom: 1.5rem;
+  order: 1; /* Place en premier */
+}
+
+.qr-code-section {
+  order: 2; /* Place en deuxième */
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--light-color);
+  border-radius: 12px;
+  border: 1px dashed var(--primary-color);
+}
+
+.share-options {
+  order: 3; /* Place en dernier */
+  margin-top: 1.5rem;
+}
+
+/* Amélioration du groupe de copie */
+.copy-input-group {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.copy-input-group input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: var(--light-color);
+  font-size: 0.9rem;
+}
+
+.btn-copy {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-copy:hover {
+  background: var(--secondary-color);
+}
+
+/* Animation de feedback */
+.copy-feedback {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--success-color);
+  text-align: right;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+
+
 
