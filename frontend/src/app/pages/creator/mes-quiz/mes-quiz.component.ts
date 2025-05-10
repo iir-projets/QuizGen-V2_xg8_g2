@@ -5,11 +5,13 @@ import { QuizService } from '../../../services/quiz.service';
 import { AuthService } from '../../../auth/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { QRCodeComponent } from 'angularx-qrcode'; // Changé de QRCodeModule à QRCodeComponent
+
 
 @Component({
   selector: 'app-mes-quiz',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, FooterComponent, QRCodeComponent],
   templateUrl: './mes-quiz.component.html',
   styleUrls: ['./mes-quiz.component.css'],
   providers: [DatePipe]
@@ -31,6 +33,20 @@ export class MesQuizComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadQuizzes();
+  }
+
+  copyQRCode(): void {
+    // Implémentez la logique pour copier le QR Code
+    // Cela nécessitera une bibliothèque comme html-to-image pour convertir le QR en image
+    console.log('QR Code copié');
+    // Temporairement, copiez juste le lien
+    // @ts-ignore
+    this.copyShareLink();
+  }
+
+  downloadQRCode(): void {
+    // Implémentez la logique pour télécharger le QR Code
+    console.log('QR Code téléchargé');
   }
 
   loadQuizzes(): void {
@@ -136,4 +152,10 @@ export class MesQuizComponent implements OnInit {
       window.open(shareUrl, '_blank');
     }
   }
+
+
+
+
+
+  
 }

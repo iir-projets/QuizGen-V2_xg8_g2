@@ -1,4 +1,416 @@
 /* Styles généraux */
+/* Questions Container */
+.questions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Question Card */
+.question-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.question-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #d1d5db;
+}
+
+/* Question Header */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.question-number {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.question-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.question-type-select {
+  padding: 0.5rem 1rem 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.question-type-select:hover {
+  border-color: #9333ea;
+}
+
+.delete-question-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.delete-question-btn:hover {
+  background-color: #fee2e2;
+  transform: scale(1.05);
+}
+
+.delete-question-btn svg {
+  display: block;
+}
+
+/* Question Body */
+.question-body {
+  padding: 1.5rem;
+}
+
+.question-text {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.question-text:focus {
+  border-color: #9333ea;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+  outline: none;
+}
+
+/* Question Settings */
+.question-settings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.question-score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.question-score input {
+  width: 60px;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.explanation-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #9333ea;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.explanation-btn:hover {
+  background-color: #f3e8ff;
+}
+
+/* Question Explanation */
+.question-explanation {
+  margin-top: 1rem;
+}
+
+.question-explanation textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* QCM Options */
+.qcm-options {
+  margin-top: 1.5rem;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.option-item {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.option-item:hover {
+  background-color: #f3f4f6;
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+  flex-shrink: 0;
+}
+
+.option-input input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.option-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.correct-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  cursor: pointer;
+  user-select: none;
+}
+
+.correct-option input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.correct-option input:checked ~ .checkmark {
+  background-color: #9333ea;
+  border-color: #9333ea;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.correct-option input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.correct-option .checkmark:after {
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.delete-option-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.delete-option-btn:hover {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.add-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px dashed #d1d5db;
+  color: #4b5563;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.add-option-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9333ea;
+  color: #9333ea;
+}
+
+/* Vrai/Faux Options */
+.vf-options {
+  margin-top: 1.5rem;
+}
+
+.vf-options-list {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.vf-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.vf-option input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.radio-checkmark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.vf-option:hover input ~ .radio-checkmark {
+  border-color: #9333ea;
+}
+
+.vf-option input:checked ~ .radio-checkmark {
+  border-color: #9333ea;
+}
+
+.radio-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.vf-option input:checked ~ .radio-checkmark:after {
+  display: block;
+}
+
+.vf-option .radio-checkmark:after {
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9333ea;
+}
+
+/* Add Question Button */
+.add-question-container {
+  margin-top: 1rem;
+}
+
+.add-question-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #9333ea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.add-question-btn:hover {
+  background-color: #7e22ce;
+  transform: translateY(-1px);
+}
+
+.add-question-btn svg {
+  stroke-width: 3;
+}
 .quiz-config-container {
   width: 100%;
   max-width: 800px;
