@@ -1,1 +1,73 @@
-<p>history works!</p>
+<div class="app-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">QuizGen</div>
+    <div class="user-menu">
+      <span class="username">Participant</span>
+      <div class="avatar">👤</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="history-container">
+    <div class="header">
+      <h1>
+        <span class="emoji">📊</span>
+        Mon Historique
+      </h1>
+      <div class="filters">
+        <span *ngFor="let filter of filters"
+              [class.active]="filter === activeFilter"
+              (click)="setFilter(filter)">
+          {{ filter }}
+        </span>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Quiz Cards -->
+      <div class="quiz-cards">
+        <div *ngFor="let item of history" class="quiz-card">
+          <div class="quiz-header">
+            <div class="category">{{ item.category }}</div>
+            <div class="date">{{ item.date }}</div>
+          </div>
+
+          <h3 class="quiz-title">{{ item.title }}</h3>
+          <div class="quiz-score">{{ item.score }}%</div>
+
+          <div class="quiz-actions">
+            <button class="action-btn" (click)="replayQuiz(item.id)">
+              <span class="icon">↻</span> Rejouer
+            </button>
+            <button class="action-btn" (click)="shareQuiz(item.id)">
+              <span class="icon">↗</span> Partager
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-section">
+        <h2>Statistiques Globales</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">Total quiz</div>
+            <div class="stat-value">{{ globalStats.totalQuizzes }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Moyenne</div>
+            <div class="stat-value">{{ globalStats.averageScore }}%</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Top catégorie</div>
+            <div class="stat-value highlight">{{ globalStats.topCategory }}</div>
+          </div>
+        </div>
+        <button class="export-btn" (click)="exportData()">
+          Exporter (PDF/CSV)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

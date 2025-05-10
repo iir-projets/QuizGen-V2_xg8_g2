@@ -9,6 +9,7 @@ import { CreateQuizzeComponent } from './pages/creator/create-quizze/create-quiz
 import {MesQuizComponent} from './pages/creator/mes-quiz/mes-quiz.component';
 import {QuizComponent} from './pages/participant/quiz/quiz.component';
 import {HistoryComponent} from './pages/participant/history/history.component';
+import {ListQuizzesComponent} from './pages/participant/list-quizzes/list-quizzes.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -31,12 +32,38 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['CREATOR'] }
   },
-  {
+ /* {
     path: 'participant',
-    component: QuizComponent,
-    // component: ParticipantComponent,
+    // component: HistoryComponent,
+    component: ListQuizzesComponent,
+    // component: QuizComponent,
     canActivate: [AuthGuard],
     data: { roles: ['PARTICIPANT'] }
+  },*/
+
+  {
+    path: 'participant',
+    canActivate: [AuthGuard],
+    data: { roles: ['PARTICIPANT'] },
+    children: [
+      {
+        path: 'history', // accès via /participant/history
+        component: HistoryComponent
+      },
+      {
+        path: 'quizzes', // accès via /participant/quizzes
+        component: ListQuizzesComponent
+      },
+      {
+        path: 'quiz/:id', // accès via /participant/quiz/123
+        component: QuizComponent
+      },
+      {
+        path: '', // redirection par défaut
+        redirectTo: 'quizzes',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: 'admin',

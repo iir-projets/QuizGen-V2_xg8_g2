@@ -1,0 +1,73 @@
+<div class="app-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">QuizGen</div>
+    <div class="user-menu">
+      <span class="username">Participant</span>
+      <div class="avatar">👤</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="quizzes-container">
+    <div class="header">
+      <h1>
+        <span class="emoji">📚</span>
+        Liste des Quiz
+      </h1>
+      <div class="controls">
+        <div class="search-bar">
+          <input type="text" placeholder="Rechercher..."
+                 (input)="onSearchChange($event)">
+          <span class="search-icon">🔍</span>
+        </div>
+        <div class="filters">
+          <span *ngFor="let filter of filters"
+                [class.active]="filter === activeFilter"
+                (click)="setFilter(filter)">
+            {{ filter }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filteredQuizzes.length > 0; else noResults" class="quiz-grid">
+      <div *ngFor="let quiz of filteredQuizzes" class="quiz-card" [routerLink]="['/quiz', quiz.id]">
+        <div class="quiz-header">
+          <div class="category">{{ quiz.category }}</div>
+          <div class="difficulty" [style.background-color]="getDifficultyColor(quiz.difficulty)">
+            {{ quiz.difficulty }}
+          </div>
+        </div>
+
+        <h3 class="quiz-title">{{ quiz.title }}</h3>
+        <p class="quiz-description">{{ quiz.description }}</p>
+
+        <div class="quiz-meta">
+          <div class="meta-item">
+            <span class="meta-icon">⏱️</span>
+            {{ quiz.timeLimit }}
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">❓</span>
+            {{ quiz.questionCount }} questions
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            {{ quiz.publishDate }}
+          </div>
+        </div>
+
+        <div class="quiz-status">
+          {{ quiz.isPublic ? 'Public' : 'Privé' }}
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noResults>
+      <div class="no-results">
+        <p>Aucun quiz ne correspond à votre recherche.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
