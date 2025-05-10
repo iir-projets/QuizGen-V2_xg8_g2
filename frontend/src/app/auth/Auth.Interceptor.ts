@@ -1,3 +1,4 @@
+/*
 import { Injectable } from '@angular/core';
 import {
   HttpRequest,
@@ -60,5 +61,89 @@ export class AuthInterceptor implements HttpInterceptor {
         return throwError(() => error);
       })
     );
+  }
+}
+*/
+
+// Auth.Interceptor.ts
+import { Injectable } from '@angular/core';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpErrorResponse
+} from '@angular/common/http';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, switchMap, filter, take } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
+
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // Skip adding token for auth requests
+    if (request.url.includes('/api/auth/')) {
+      return next.handle(request);
+    }
+
+    const token = this.authService.getToken();
+    if (token) {
+      request = this.addToken(request, token);
+    }
+
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !request.url.includes('/api/auth/')) {
+          return this.handle401Error(request, next);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
+    return request.clone({
+      setHeaders: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // If token is expired, try to refresh it
+    if (this.authService.isTokenExpired()) {
+      return this.authService.refreshToken().pipe(
+        switchMap((token: string) => {
+          return next.handle(this.addToken(request, token));
+        }),
+        catchError((err) => {
+          this.authService.logout();
+          this.router.navigate(['/login'], {
+            queryParams: {
+              redirectUrl: this.router.url,
+              reason: 'session_expired'
+            }
+          });
+          return throwError(() => err);
+        })
+      );
+    } else {
+      // If token is not expired but still getting 401, logout
+      this.authService.logout();
+      this.router.navigate(['/login'], {
+        queryParams: {
+          redirectUrl: this.router.url,
+          reason: 'session_expired'
+        }
+      });
+      return throwError(() => new Error('Session expired'));
+    }
   }
 }
