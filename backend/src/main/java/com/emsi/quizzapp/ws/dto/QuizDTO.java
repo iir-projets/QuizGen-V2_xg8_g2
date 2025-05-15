@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -41,5 +42,10 @@ public class QuizDTO {
     private String questions;
 
     private Long creatorId;
+
+    // Ajouter ces champs à QuizDTO.java
+    private Map<String, Object> scoreDetails;
+    private Map<Long, String> correctAnswers;
+    private Map<Long, String> questionExplanations;
 
 }

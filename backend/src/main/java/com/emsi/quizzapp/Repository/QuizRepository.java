@@ -11,4 +11,5 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     // Custom queries can be added here if needed
     List<Quiz> findByCreatorId(Long creatorId);
 
+    List<Quiz> findByIsPublicTrue();
 }
