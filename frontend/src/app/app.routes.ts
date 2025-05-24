@@ -1,61 +1,62 @@
-import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
-import { CreatorComponent } from './pages/creator/creator.component';
-import { AuthGuard } from './core/auth.guard';
-import { AdminComponent } from './pages/admin/admin.component';
+import {Routes} from '@angular/router';
+import {LoginComponent} from './pages/login/login.component';
+import {RegisterComponent} from './pages/register/register.component';
+import {CreatorComponent} from './pages/creator/creator.component';
+import {AuthGuard} from './core/auth.guard';
+import {AdminComponent} from './pages/admin/admin.component';
 
-import { CreateQuizzeComponent } from './pages/creator/create-quizze/create-quizze.component';
+import {CreateQuizzeComponent} from './pages/creator/create-quizze/create-quizze.component';
 import {MesQuizComponent} from './pages/creator/mes-quiz/mes-quiz.component';
 import {QuizComponent} from './pages/participant/quiz/quiz.component';
 import {HistoryComponent} from './pages/participant/history/history.component';
 import {ListQuizzesComponent} from './pages/participant/list-quizzes/list-quizzes.component';
+import {HomeComponent} from './pages/home/home.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  {path: 'home', component: HomeComponent},
+  {path: 'login', component: LoginComponent},
+  {path: 'register', component: RegisterComponent},
   {
     path: 'creator',
     component: CreatorComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['CREATOR'] }
+    data: {roles: ['CREATOR']}
   },
   {
     path: 'creer-quiz',
     component: CreateQuizzeComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['CREATOR'] }
+    data: {roles: ['CREATOR']}
   },
   {
     path: 'mes-quiz',
     component: MesQuizComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['CREATOR'] }
+    data: {roles: ['CREATOR']}
   },
- /* {
-    path: 'participant',
-    // component: HistoryComponent,
-    component: ListQuizzesComponent,
-    // component: QuizComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['PARTICIPANT'] }
-  },*/
-
+  /* {
+     path: 'participant',
+     // component: HistoryComponent,
+     component: ListQuizzesComponent,
+     // component: QuizComponent,
+     canActivate: [AuthGuard],
+     data: { roles: ['PARTICIPANT'] }
+   },*/
   {
     path: 'participant',
     canActivate: [AuthGuard],
-    data: { roles: ['PARTICIPANT'] },
+    data: {roles: ['PARTICIPANT']},
     children: [
       {
-        path: 'history', // accès via /participant/history
+        path: 'history',
         component: HistoryComponent
       },
       {
-        path: 'quizzes', // accès via /participant/quizzes
+        path: 'quizzes',
         component: ListQuizzesComponent
       },
       {
-        path: 'quiz/:id', // accès via /participant/quiz/123
+        path: 'quiz/:id',
         component: QuizComponent
       },
       {
@@ -69,18 +70,18 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
+    data: {roles: ['ADMIN']}
   },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' },
+  {path: '', redirectTo: '/home', pathMatch: 'full'},
+  {path: '**', redirectTo: '/home'},
 
   {
     path: 'mes-quiz',
     component: MesQuizComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['CREATOR'] }
+    data: {roles: ['CREATOR']}
   },
 
-  { path: 'quiz/:id', component: QuizComponent },
-  { path: 'history', component: HistoryComponent },
+  {path: 'quiz/:id', component: QuizComponent},
+  {path: 'history', component: HistoryComponent},
 ];

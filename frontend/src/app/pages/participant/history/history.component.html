@@ -25,8 +25,30 @@
     </div>
 
     <div class="content">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement de votre historique...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-state">
+        <div class="error-icon">❌</div>
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadHistory()">Réessayer</button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && history.length === 0" class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>Vous n'avez pas encore passé de quiz.</p>
+        <button class="action-btn" (click)="router.navigate(['/participant/quizzes'])">
+          Découvrir les quiz
+        </button>
+      </div>
+
       <!-- Quiz Cards -->
-      <div class="quiz-cards">
+      <div *ngIf="!loading && !error && history.length > 0" class="quiz-cards">
         <div *ngFor="let item of history" class="quiz-card">
           <div class="quiz-header">
             <div class="category">{{ item.category }}</div>
@@ -34,13 +56,15 @@
           </div>
 
           <h3 class="quiz-title">{{ item.title }}</h3>
-          <div class="quiz-score">{{ item.score }}%</div>
+          <div class="quiz-score" [ngClass]="{'passed': item.passed, 'failed': !item.passed}">
+            {{ item.score }}%
+          </div>
 
           <div class="quiz-actions">
-            <button class="action-btn" (click)="replayQuiz(item.id)">
+            <button class="action-btn" (click)="replayQuiz(item.quizId)">
               <span class="icon">↻</span> Rejouer
             </button>
-            <button class="action-btn" (click)="shareQuiz(item.id)">
+            <button class="action-btn" (click)="shareQuiz(item.quizId)">
               <span class="icon">↗</span> Partager
             </button>
           </div>
@@ -48,7 +72,7 @@
       </div>
 
       <!-- Statistics -->
-      <div class="stats-section">
+      <div *ngIf="!loading && !error && history.length > 0" class="stats-section">
         <h2>Statistiques Globales</h2>
         <div class="stats-grid">
           <div class="stat-item">
@@ -65,7 +89,7 @@
           </div>
         </div>
         <button class="export-btn" (click)="exportData()">
-          Exporter (PDF/CSV)
+          Exporter (JSON)
         </button>
       </div>
     </div>

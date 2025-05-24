@@ -1,19 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface QuizHistory {
-  id: number;
-  category: string;
-  date: string;
-  title: string;
-  score: number;
-}
-
-interface GlobalStats {
-  totalQuizzes: number;
-  averageScore: number;
-  topCategory: string;
-}
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { HistoryService, QuizHistory, GlobalStats } from '../../../services/history.service';
 
 @Component({
   selector: 'app-history',
@@ -22,60 +11,130 @@ interface GlobalStats {
   standalone: true,
   imports: [CommonModule]
 })
-export class HistoryComponent {
-  history: QuizHistory[] = [
-    {
-      id: 1,
-      category: 'CultureG',
-      date: '12 Nov 2023',
-      title: 'Quiz sur la culture générale',
-      score: 78
-    },
-    {
-      id: 2,
-      category: 'Techno',
-      date: '05 Déc 2023',
-      title: 'Quiz sur le développement web',
-      score: 68
-    },
-    {
-      id: 3,
-      category: 'Science',
-      date: '01 Déc 2023',
-      title: 'Quiz sur la science',
-      score: 85
-    },
-    {
-      id: 4,
-      category: 'CultureG',
-      date: '12 Nov 2023',
-      title: 'Quiz sur la culture générale',
-      score: 92
-    }
-  ];
-
+export class HistoryComponent implements OnInit, OnDestroy {
+  history: QuizHistory[] = [];
   globalStats: GlobalStats = {
-    totalQuizzes: 24,
-    averageScore: 82,
-    topCategory: 'Science'
+    totalQuizzes: 0,
+    averageScore: 0,
+    topCategory: ''
   };
 
   activeFilter: string = 'Tous';
   filters = ['Mois', 'Année', 'Tous'];
 
+  loading = false;
+  error: string | null = null;
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private historyService: HistoryService,
+    public router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadHistory();
+    this.loadStats();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  loadHistory(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.subscriptions.push(
+      this.historyService.getQuizHistory().subscribe({
+        next: (data) => {
+          this.history = data.map(item => ({
+            ...item,
+            date: this.formatDate(new Date(item.date))
+          }));
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error loading quiz history:', err);
+          this.error = typeof err === 'string' ? err : 'Failed to load quiz history';
+          this.loading = false;
+        }
+      })
+    );
+  }
+
+  loadStats(): void {
+    this.subscriptions.push(
+      this.historyService.getGlobalStats().subscribe({
+        next: (stats) => {
+          this.globalStats = stats;
+        },
+        error: (err) => {
+          console.error('Error loading statistics:', err);
+        }
+      })
+    );
+  }
+
   setFilter(filter: string): void {
     this.activeFilter = filter;
+    // In a real implementation, we would filter the history based on the selected filter
+    // For now, we'll just reload all history
+    this.loadHistory();
   }
 
   replayQuiz(quizId: number): void {
-    console.log('Rejouer le quiz', quizId);
+    this.router.navigate(['/participant/quiz', quizId]);
   }
 
   shareQuiz(quizId: number): void {
-    console.log('Partager le quiz', quizId);
+    // Create a shareable link
+    const shareUrl = `${window.location.origin}/participant/quiz/${quizId}`;
+
+    // Try to use the Web Share API if available
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this quiz!',
+        text: 'I thought you might enjoy this quiz.',
+        url: shareUrl,
+      })
+      .catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback: copy to clipboard
+      this.copyToClipboard(shareUrl);
+      alert('Link copied to clipboard!');
+    }
   }
 
   exportData(): void {
-    console.log('Exporter les données');
+    // For now, we'll just export the data as JSON
+    const dataStr = JSON.stringify({
+      history: this.history,
+      statistics: this.globalStats
+    }, null, 2);
+
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'quiz-history.json';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  }
+
+  private formatDate(date: Date): string {
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  private copyToClipboard(text: string): void {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
   }
 }

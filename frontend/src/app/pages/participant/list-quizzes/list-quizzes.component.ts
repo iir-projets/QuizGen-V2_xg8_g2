@@ -1,79 +1,46 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
-interface Quiz {
-  id: number;
-  title: string;
-  category: string;
-  description: string;
-  timeLimit: string;
-  questionCount: number;
-  difficulty: 'Facile' | 'Moyen' | 'Difficile';
-  isPublic: boolean;
-  publishDate: string;
-}
+import { QuizService } from '../../../services/quiz.service';
 
 @Component({
   selector: 'app-list-quizzes',
   templateUrl: './list-quizzes.component.html',
   styleUrls: ['./list-quizzes.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule]
 })
-export class ListQuizzesComponent {
+export class ListQuizzesComponent implements OnInit {
   activeFilter: string = 'Tous';
   filters = ['Public', 'Privé', 'Tous'];
   searchQuery: string = '';
+  quizzes: any[] = [];
+  filteredQuizzes: any[] = [];
+  isLoading = true;
 
-  quizzes: Quiz[] = [
-    {
-      id: 1,
-      title: 'Culture Générale Avancée',
-      category: 'CultureG',
-      description: 'Testez vos connaissances générales avec des questions variées',
-      timeLimit: '10 min',
-      questionCount: 20,
-      difficulty: 'Moyen',
-      isPublic: true,
-      publishDate: '15 Nov 2023'
-    },
-    {
-      id: 2,
-      title: 'Développement Web Moderne',
-      category: 'Techno',
-      description: 'Quiz complet sur les technologies web actuelles',
-      timeLimit: '15 min',
-      questionCount: 25,
-      difficulty: 'Difficile',
-      isPublic: true,
-      publishDate: '05 Déc 2023'
-    },
-    {
-      id: 3,
-      title: 'Science Fondamentale',
-      category: 'Science',
-      description: 'Les bases de la physique, chimie et biologie',
-      timeLimit: '8 min',
-      questionCount: 15,
-      difficulty: 'Facile',
-      isPublic: false,
-      publishDate: '01 Déc 2023'
-    },
-    {
-      id: 4,
-      title: 'Histoire Contemporaine',
-      category: 'Histoire',
-      description: 'Événements marquants du 20ème siècle',
-      timeLimit: '12 min',
-      questionCount: 18,
-      difficulty: 'Moyen',
-      isPublic: true,
-      publishDate: '10 Nov 2023'
-    }
-  ];
+  constructor(
+    private quizService: QuizService,
+    private router: Router
+  ) {}
 
-  filteredQuizzes = this.quizzes;
+  ngOnInit(): void {
+    this.loadQuizzes();
+  }
+
+  loadQuizzes(): void {
+    this.isLoading = true;
+    this.quizService.getPublicQuizzes().subscribe({
+      next: (quizzes) => {
+        this.quizzes = quizzes;
+        this.filteredQuizzes = quizzes;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading quizzes', err);
+        this.isLoading = false;
+      }
+    });
+  }
 
   setFilter(filter: string): void {
     this.activeFilter = filter;
@@ -103,5 +70,14 @@ export class ListQuizzesComponent {
       case 'Difficile': return '#F44336';
       default: return '#9333EA';
     }
+  }
+
+
+  navigateToQuiz(quizId: number): void {
+    this.router.navigate([`/participant/quiz/${quizId}`]);
+  }
+
+  navigateToHistory(): void {
+    this.router.navigate(['/participant/history']);
   }
 }

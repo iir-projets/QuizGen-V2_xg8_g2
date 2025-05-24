@@ -34,5 +34,5 @@ export interface QuizResult {
   score: number;
   passed: boolean;
   submissionDate: string;
-  correctAnswers?: { [questionId: number]: string }; // Optionnel
+  correctAnswers?: { [questionId: number]: string };
 }

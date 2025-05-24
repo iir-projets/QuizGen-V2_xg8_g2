@@ -310,9 +310,7 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
-  getToken() {
-    return localStorage.getItem(this.tokenKey);
-  }
+
 
   private extractRoleFromToken(token: string): string {
     try {
@@ -454,4 +452,29 @@ export class AuthService {
 
     return allowedRoles.some(role => this.hasRole(role));
   }
+
+  getToken(): string | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
+
+    // Vérifier si le token est expiré
+    const tokenData = this.decodeToken(token);
+    if (tokenData && tokenData.exp && (tokenData.exp < (Date.now() / 1000))) {
+      this.logout();
+      return null;
+    }
+
+    return token;
+  }
+
+
+  private decodeToken(token: string): any {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
+
 }

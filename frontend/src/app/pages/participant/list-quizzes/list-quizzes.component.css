@@ -38,6 +38,30 @@
   justify-content: center;
 }
 
+/* History Button */
+.history-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f3e8ff;
+  color: #9333EA;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.history-btn:hover {
+  background-color: #e9d5ff;
+}
+
+.history-icon {
+  font-size: 16px;
+}
+
 /* Main Content */
 .quizzes-container {
   padding: 24px;
@@ -228,4 +252,21 @@
     width: 100%;
     justify-content: space-between;
   }
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.quiz-card {
+  /* Ajoutez un curseur pointer pour indiquer que c'est cliquable */
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quiz-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
