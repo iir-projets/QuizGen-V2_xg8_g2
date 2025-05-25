@@ -143,109 +143,170 @@
   </div>
 </div>
 -->
-<div class="quiz-container">
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="loading" class="loading">
-    <p>Chargement du quiz...</p>
-  </div>
-
-  <div *ngIf="!loading && !quizResult && quiz">
-    <!-- Quiz in progress view -->
-    <div class="quiz-header" [style.background-color]="quiz.primaryColor || '#9333EA'">
-      <div class="timer">{{ formatTime(timeLeft) }}</div>
-      <div class="question-counter">
-        Question {{ currentQuestionIndex + 1 }}/{{ questions.length }}
+<div class="app-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="menu-toggle" (click)="toggleSidebar()">
+      <span class="menu-icon">☰</span>
+    </div>
+    <div class="logo">QuizGen</div>
+    <div class="user-menu">
+      <span class="username">{{ username || 'Participant' }}</span>
+      <div class="avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="dropdown-menu">
+        <button class="dropdown-item" (click)="logout()">
+          <span class="item-icon">🚪</span>
+          Déconnexion
+        </button>
       </div>
     </div>
+  </div>
 
-    <div class="question-container" *ngIf="questions[currentQuestionIndex] as currentQuestion">
-      <div class="question-card">
-        <div class="question-text">
-          {{ currentQuestion.text }}
+  <!-- Sidebar -->
+  <div class="sidebar" [class.active]="sidebarActive">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">QuizGen</div>
+      <button class="close-sidebar" (click)="toggleSidebar()">×</button>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="sidebar-username">{{ username || 'Participant' }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/participant/quizzes">
+        <span class="nav-icon">📚</span>
+        Tous les Quiz
+      </a>
+      <a class="nav-item" routerLink="/participant/history">
+        <span class="nav-icon">📊</span>
+        Mon Historique
+      </a>
+      <a class="nav-item" routerLink="/participant/profile">
+        <span class="nav-icon">👤</span>
+        Mon Profil
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="quiz-container">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        <p>Chargement du quiz...</p>
+      </div>
+
+      <div *ngIf="!loading && !quizResult && quiz">
+        <!-- Quiz in progress view -->
+        <div class="quiz-header" [style.background-color]="quiz.primaryColor || '#9333EA'">
+          <div class="timer">{{ formatTime(timeLeft) }}</div>
+          <div class="question-counter">
+            Question {{ currentQuestionIndex + 1 }}/{{ questions.length }}
+          </div>
         </div>
 
-        <div class="answers-container">
-          <!-- Pour les questions QCM -->
-          <div *ngIf="currentQuestion.type === 'qcm'">
-            <div *ngFor="let option of currentQuestion.options"
-                 class="answer-option"
-                 [class.selected]="selectedAnswers[currentQuestion.id] === option"
-                 (click)="selectAnswer(currentQuestion.id, option)">
-              {{ option }}
+        <div class="question-container" *ngIf="questions[currentQuestionIndex] as currentQuestion">
+          <div class="question-card">
+            <div class="question-text">
+              {{ currentQuestion.text }}
+            </div>
+
+            <div class="answers-container">
+              <!-- Pour les questions QCM -->
+              <div *ngIf="currentQuestion.type === 'qcm'">
+                <div *ngFor="let option of currentQuestion.options"
+                     class="answer-option"
+                     [class.selected]="selectedAnswers[currentQuestion.id] === option"
+                     (click)="selectAnswer(currentQuestion.id, option)">
+                  {{ option }}
+                </div>
+              </div>
+
+              <!-- Pour les questions V/F -->
+              <div *ngIf="currentQuestion.type === 'vf'" class="vf-options">
+                <div class="answer-option"
+                     [class.selected]="selectedAnswers[currentQuestion.id] === 'Vrai'"
+                     (click)="selectAnswer(currentQuestion.id, 'Vrai')">
+                  Vrai
+                </div>
+                <div class="answer-option"
+                     [class.selected]="selectedAnswers[currentQuestion.id] === 'Faux'"
+                     (click)="selectAnswer(currentQuestion.id, 'Faux')">
+                  Faux
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Pour les questions V/F -->
-          <div *ngIf="currentQuestion.type === 'vf'" class="vf-options">
-            <div class="answer-option"
-                 [class.selected]="selectedAnswers[currentQuestion.id] === 'true'"
-                 (click)="selectAnswer(currentQuestion.id, 'true')">
-              Vrai
+        <div class="navigation-buttons">
+          <button class="prev-button"
+                  (click)="previousQuestion()"
+                  [disabled]="currentQuestionIndex === 0">
+            Précédent
+          </button>
+
+          <button *ngIf="currentQuestionIndex < questions.length - 1"
+                  class="next-button"
+                  (click)="nextQuestion()"
+                  [disabled]="!selectedAnswers[questions[currentQuestionIndex].id]">
+            Suivant
+          </button>
+          <button *ngIf="currentQuestionIndex === questions.length - 1"
+                  class="submit-button"
+                  (click)="submitQuiz()"
+                  [disabled]="!selectedAnswers[questions[currentQuestionIndex].id]">
+            Soumettre
+          </button>
+        </div>
+      </div>
+
+      <!-- Results view -->
+      <div *ngIf="quizResult" class="result-container">
+        <h2>Résultats du quiz: {{ quizResult.quizTitle }}</h2>
+        <div class="score">Score: {{ quizResult.score }}%</div>
+        <div class="result" [class.passed]="quizResult.passed" [class.failed]="!quizResult.passed">
+          {{ quizResult.passed ? 'Réussi' : 'Échoué' }}
+        </div>
+        <p>Seuil de réussite: {{ quiz?.passingGrade || 60 }}%</p>
+
+        <div *ngIf="quiz?.autoCorrection && quiz?.showResults" class="answers-review">
+          <h3>Correction:</h3>
+          <div *ngFor="let question of questions; let i = index" class="question-review">
+            <div class="question-text">{{ question.text }}</div>
+            <div class="user-answer">
+              Votre réponse: {{ selectedAnswers[question.id] || 'Non répondue' }}
             </div>
-            <div class="answer-option"
-                 [class.selected]="selectedAnswers[currentQuestion.id] === 'false'"
-                 (click)="selectAnswer(currentQuestion.id, 'false')">
-              Faux
+            <div class="correct-answer">
+              Bonne réponse: {{
+              question.type === 'vf' ?
+                (question.reponseCorrecte ? 'Vrai' : 'Faux') :
+                question.correctAnswer
+              }}
+            </div>
+            <div *ngIf="question.explanation" class="explanation">
+              Explication: {{ question.explanation }}
             </div>
           </div>
         </div>
+
+        <button class="back-button" (click)="navigateToListe()">Retour à la liste des quiz</button>
       </div>
     </div>
-
-    <div class="navigation-buttons">
-      <button class="prev-button"
-              (click)="previousQuestion()"
-              [disabled]="currentQuestionIndex === 0">
-        Précédent
-      </button>
-
-      <button *ngIf="currentQuestionIndex < questions.length - 1"
-              class="next-button"
-              (click)="nextQuestion()"
-              [disabled]="!selectedAnswers[questions[currentQuestionIndex].id]">
-        Suivant
-      </button>
-      <button *ngIf="currentQuestionIndex === questions.length - 1"
-              class="submit-button"
-              (click)="submitQuiz()"
-              [disabled]="!selectedAnswers[questions[currentQuestionIndex].id]">
-        Soumettre
-      </button>
-    </div>
-  </div>
-
-  <!-- Results view -->
-  <div *ngIf="quizResult" class="result-container">
-    <h2>Résultats du quiz: {{ quizResult.quizTitle }}</h2>
-    <div class="score">Score: {{ quizResult.score }}%</div>
-    <div class="result" [class.passed]="quizResult.passed" [class.failed]="!quizResult.passed">
-      {{ quizResult.passed ? 'Réussi' : 'Échoué' }}
-    </div>
-    <p>Seuil de réussite: {{ quiz?.passingGrade || 60 }}%</p>
-
-    <div *ngIf="quiz?.autoCorrection && quiz?.showResults" class="answers-review">
-      <h3>Correction:</h3>
-      <div *ngFor="let question of questions; let i = index" class="question-review">
-        <div class="question-text">{{ question.text }}</div>
-        <div class="user-answer">
-          Votre réponse: {{ selectedAnswers[question.id] || 'Non répondue' }}
-        </div>
-        <div class="correct-answer">
-          Bonne réponse: {{
-          question.type === 'vf' ?
-            (question.reponseCorrecte ? 'Vrai' : 'Faux') :
-            question.correctAnswer
-          }}
-        </div>
-        <div *ngIf="question.explanation" class="explanation">
-          Explication: {{ question.explanation }}
-        </div>
-      </div>
-    </div>
-
-    <button class="back-button" (click)="navigateToListe()">Retour à la liste des quiz</button>
   </div>
 </div>

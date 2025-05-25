@@ -9,6 +9,8 @@ import {CreateQuizzeComponent} from './pages/creator/create-quizze/create-quizze
 import {MesQuizComponent} from './pages/creator/mes-quiz/mes-quiz.component';
 import {QuizComponent} from './pages/participant/quiz/quiz.component';
 import {HistoryComponent} from './pages/participant/history/history.component';
+import {ProfileComponent} from './pages/participant/profile/profile.component';
+import {DashboardComponent} from './pages/participant/dashboard/dashboard.component';
 
 import {ListQuizzesComponent} from './pages/participant/list-quizzes/list-quizzes.component';
 import {HomeComponent} from './pages/home/home.component';
@@ -49,6 +51,10 @@ export const routes: Routes = [
     data: {roles: ['PARTICIPANT']},
     children: [
       {
+        path: 'dashboard',
+        component: DashboardComponent
+      },
+      {
         path: 'history',
         component: HistoryComponent
       },
@@ -61,8 +67,12 @@ export const routes: Routes = [
         component: QuizComponent
       },
       {
+        path: 'profile',
+        component: ProfileComponent
+      },
+      {
         path: '', // redirection par défaut
-        redirectTo: 'quizzes',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
       }
     ]
@@ -74,15 +84,5 @@ export const routes: Routes = [
     data: {roles: ['ADMIN']}
   },
   {path: '', redirectTo: '/home', pathMatch: 'full'},
-  {path: '**', redirectTo: '/home'},
-
-  {
-    path: 'mes-quiz',
-    component: MesQuizComponent,
-    canActivate: [AuthGuard],
-    data: {roles: ['CREATOR']}
-  },
-
-  {path: 'quiz/:id', component: QuizComponent},
-  {path: 'history', component: HistoryComponent},
+  {path: '**', redirectTo: '/home'}
 ];

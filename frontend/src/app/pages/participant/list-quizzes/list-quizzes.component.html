@@ -1,83 +1,128 @@
 <div class="app-container">
   <!-- Top Bar -->
   <div class="top-bar">
+    <div class="menu-toggle" (click)="toggleSidebar()">
+      <span class="menu-icon">☰</span>
+    </div>
     <div class="logo">QuizGen</div>
     <div class="user-menu">
-      <button class="history-btn" (click)="navigateToHistory()">
-        <span class="history-icon">📊</span>
+      <span class="username">{{ username || 'Participant' }}</span>
+      <div class="avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="dropdown-menu">
+        <button class="dropdown-item" (click)="logout()">
+          <span class="item-icon">🚪</span>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" [class.active]="sidebarActive">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">QuizGen</div>
+      <button class="close-sidebar" (click)="toggleSidebar()">×</button>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="sidebar-username">{{ username || 'Participant' }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" routerLink="/participant/quizzes">
+        <span class="nav-icon">📚</span>
+        Tous les Quiz
+      </a>
+      <a class="nav-item" routerLink="/participant/history">
+        <span class="nav-icon">📊</span>
         Mon Historique
+      </a>
+      <a class="nav-item" routerLink="/participant/profile">
+        <span class="nav-icon">👤</span>
+        Mon Profil
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Déconnexion
       </button>
-      <span class="username"></span>
-      <div class="avatar">👤</div>
     </div>
   </div>
 
   <!-- Main Content -->
-  <div class="quizzes-container">
-    <div class="header">
-      <h1>
-        <span class="emoji">📚</span>
-        Liste des Quiz
-      </h1>
-      <div class="controls">
-        <div class="search-bar">
-          <input type="text" placeholder="Rechercher..."
-                 (input)="onSearchChange($event)">
-          <span class="search-icon">🔍</span>
-        </div>
-        <div class="filters">
-          <span *ngFor="let filter of filters"
-                [class.active]="filter === activeFilter"
-                (click)="setFilter(filter)">
-            {{ filter }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="isLoading" class="loading">
-      <p>Chargement des quiz...</p>
-    </div>
-
-    <div *ngIf="!isLoading">
-      <div *ngIf="filteredQuizzes.length > 0; else noResults" class="quiz-grid">
-        <div *ngFor="let quiz of filteredQuizzes" class="quiz-card" (click)="navigateToQuiz(quiz.id)">
-          <div class="quiz-header">
-            <div class="category">{{ quiz.category }}</div>
-            <div class="difficulty" [style.background-color]="getDifficultyColor(quiz.difficulty)">
-              {{ quiz.difficulty }}
-            </div>
+  <div class="main-content">
+    <div class="quizzes-container">
+      <div class="header">
+        <h1>
+          <span class="emoji">📚</span>
+          Liste des Quiz
+        </h1>
+        <div class="controls">
+          <div class="search-bar">
+            <input type="text" placeholder="Rechercher..."
+                   (input)="onSearchChange($event)">
+            <span class="search-icon">🔍</span>
           </div>
-
-          <h3 class="quiz-title">{{ quiz.title }}</h3>
-          <p class="quiz-description">{{ quiz.description }}</p>
-
-          <div class="quiz-meta">
-            <div class="meta-item">
-              <span class="meta-icon">⏱️</span>
-              {{ quiz.timeLimit || 'Non spécifié' }}
-            </div>
-            <div class="meta-item">
-              <span class="meta-icon">❓</span>
-              {{ quiz.questionCount }} questions
-            </div>
-   <!--         <div class="meta-item">
-              <span class="meta-icon">📅</span>
-              {{ quiz.publishDate }}
-            </div>-->
-          </div>
-
-          <div class="quiz-status">
-            {{ quiz.isPublic ? 'Public' : 'Privé' }}
+          <div class="filters">
+            <span *ngFor="let filter of filters"
+                  [class.active]="filter === activeFilter"
+                  (click)="setFilter(filter)">
+              {{ filter }}
+            </span>
           </div>
         </div>
       </div>
 
-      <ng-template #noResults>
-        <div class="no-results">
-          <p>Aucun quiz ne correspond à votre recherche.</p>
+      <div *ngIf="isLoading" class="loading">
+        <p>Chargement des quiz...</p>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div *ngIf="filteredQuizzes.length > 0; else noResults" class="quiz-grid">
+          <div *ngFor="let quiz of filteredQuizzes" class="quiz-card" (click)="navigateToQuiz(quiz.id)">
+            <div class="quiz-header">
+              <div class="category">{{ quiz.category }}</div>
+              <div class="difficulty" [style.background-color]="getDifficultyColor(quiz.difficulty)">
+                {{ quiz.difficulty }}
+              </div>
+            </div>
+
+            <h3 class="quiz-title">{{ quiz.title }}</h3>
+            <p class="quiz-description">{{ quiz.description }}</p>
+
+            <div class="quiz-meta">
+              <div class="meta-item">
+                <span class="meta-icon">⏱️</span>
+                {{ quiz.timeLimit || 'Non spécifié' }}
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">❓</span>
+                {{ quiz.questionCount }} questions
+              </div>
+     <!--         <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                {{ quiz.publishDate }}
+              </div>-->
+            </div>
+
+            <div class="quiz-status">
+              {{ quiz.isPublic ? 'Public' : 'Privé' }}
+            </div>
+          </div>
         </div>
-      </ng-template>
+
+        <ng-template #noResults>
+          <div class="no-results">
+            <p>Aucun quiz ne correspond à votre recherche.</p>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>

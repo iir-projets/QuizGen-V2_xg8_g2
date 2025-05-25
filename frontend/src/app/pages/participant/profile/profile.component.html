@@ -1,0 +1,198 @@
+<div class="app-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="menu-toggle" (click)="toggleSidebar()">
+      <span class="menu-icon">☰</span>
+    </div>
+    <div class="logo">QuizGen</div>
+    <div class="user-menu">
+      <span class="username">{{ username || 'Participant' }}</span>
+      <div class="avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="dropdown-menu">
+        <button class="dropdown-item" (click)="logout()">
+          <span class="item-icon">🚪</span>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" [class.active]="sidebarActive">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">QuizGen</div>
+      <button class="close-sidebar" (click)="toggleSidebar()">×</button>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+        <span *ngIf="!userAvatar">{{ userInitials }}</span>
+      </div>
+      <div class="sidebar-username">{{ username || 'Participant' }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/participant/quizzes">
+        <span class="nav-icon">📚</span>
+        Tous les Quiz
+      </a>
+      <a class="nav-item" routerLink="/participant/history">
+        <span class="nav-icon">📊</span>
+        Mon Historique
+      </a>
+      <a class="nav-item active" routerLink="/participant/profile">
+        <span class="nav-icon">👤</span>
+        Mon Profil
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="profile-container">
+      <div class="header">
+        <h1>
+          <span class="emoji">👤</span>
+          Mon Profil
+        </h1>
+        <div class="actions">
+          <button *ngIf="!isEditMode" class="edit-btn" (click)="toggleEditMode()">
+            <span class="edit-icon">✏️</span>
+            Modifier
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile View Mode -->
+      <div *ngIf="!isEditMode" class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar">
+            <span *ngIf="!userAvatar">{{ userInitials }}</span>
+          </div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ username }}</h2>
+            <div class="profile-role">{{ userRole || 'Participant' }}</div>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-item">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">{{ userEmail }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Téléphone</div>
+            <div class="detail-value">Non spécifié</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Adresse</div>
+            <div class="detail-value">Non spécifiée</div>
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Quiz complétés</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">0%</div>
+            <div class="stat-label">Score moyen</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Edit Mode -->
+      <div *ngIf="isEditMode" class="profile-card edit-mode">
+        <div class="update-message success" *ngIf="updateSuccess">
+          Profil mis à jour avec succès!
+        </div>
+        <div class="update-message error" *ngIf="updateError">
+          {{ updateError }}
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="name">Nom</label>
+            <input type="text" id="name" formControlName="name"
+                  [class.invalid]="formSubmitted && profileForm.get('name')?.invalid">
+            <div class="error-message" *ngIf="formSubmitted && profileForm.get('name')?.errors?.['required']">
+              Le nom est requis
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email"
+                  [class.invalid]="formSubmitted && profileForm.get('email')?.invalid">
+            <div class="error-message" *ngIf="formSubmitted && profileForm.get('email')?.errors?.['required']">
+              L'email est requis
+            </div>
+            <div class="error-message" *ngIf="formSubmitted && profileForm.get('email')?.errors?.['email']">
+              Format d'email invalide
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telephone">Téléphone</label>
+            <input type="tel" id="telephone" formControlName="telephone">
+          </div>
+
+          <div class="form-group">
+            <label for="adresse">Adresse</label>
+            <textarea id="adresse" formControlName="adresse" rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="toggleEditMode()">Annuler</button>
+            <button type="submit" class="save-btn">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Additional Sections -->
+      <div class="section">
+        <h2>Préférences</h2>
+        <div class="preferences-card">
+          <div class="preference-item">
+            <div class="preference-label">Notifications</div>
+            <div class="preference-toggle">
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+          <div class="preference-item">
+            <div class="preference-label">Partage des résultats</div>
+            <div class="preference-toggle">
+              <label class="switch">
+                <input type="checkbox">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Sécurité</h2>
+        <div class="security-card">
+          <button class="security-btn">
+            <span class="security-icon">🔒</span>
+            Changer le mot de passe
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
