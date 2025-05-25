@@ -225,8 +225,8 @@ public class QuizServiceImpl implements QuizService {
                                            correctAnswerStr.equals("t");
                         }
 
-                        // Use 'true' and 'false' strings to match frontend expectations
-                        correctAnswers.put(id, correctAnswer ? "true" : "false");
+                        // Use localized 'Vrai' and 'Faux' strings to match frontend expectations
+                        correctAnswers.put(id, correctAnswer ? "Vrai" : "Faux");
                     }
                 }
             }
@@ -418,10 +418,10 @@ public class QuizServiceImpl implements QuizService {
                 try {
                     questionId = question.get("id") != null
                             ? Long.parseLong(question.get("id").toString())
-                            : System.currentTimeMillis(); // ID temporaire si non fourni
+                            : (long) (questions.indexOf(question) + 1); // ID séquentiel comme dans le frontend
                 } catch (NumberFormatException e) {
                     System.err.println("Invalid question ID format: " + question.get("id"));
-                    questionId = System.currentTimeMillis(); // Fallback ID
+                    questionId = (long) (questions.indexOf(question) + 1); // Fallback ID séquentiel
                 }
 
                 String questionType = question.get("type").toString();
@@ -492,7 +492,8 @@ public class QuizServiceImpl implements QuizService {
                 maxPossibleScore = 1;
             }
 
-            int finalScore = (int) Math.round((totalScore * 100.0) / maxPossibleScore);
+            // Calculate the final score as a percentage of the total possible score
+            int finalScore = maxPossibleScore > 0 ? (int) Math.round((totalScore * 100.0) / maxPossibleScore) : 0;
             long totalCorrect = questionResults.stream().filter(q -> (boolean) q.get("isCorrect")).count();
 
             System.out.println("Final score calculation: " + totalScore + " / " + maxPossibleScore + " * 100 = " + finalScore);
@@ -575,11 +576,8 @@ public class QuizServiceImpl implements QuizService {
                     return true;
                 }
 
-                // Try to match with partial text (if participant answer contains the correct text or vice versa)
-                if (normalizedParticipantAnswer.contains(correctText) || correctText.contains(normalizedParticipantAnswer)) {
-                    System.out.println("QCM answer is correct (partial match): " + participantAnswer);
-                    return true;
-                }
+                // Partial matching is too lenient and can lead to incorrect scoring
+                // We'll only use exact matches (case-insensitive) for more accurate scoring
             }
 
             System.out.println("QCM answer is incorrect: " + participantAnswer + " does not match any correct option");
@@ -609,7 +607,8 @@ public class QuizServiceImpl implements QuizService {
             System.out.println("VF question - participantAnswer: " + participantAnswer + " (type: " + participantAnswer.getClass().getName() + ")");
 
             // Normalize the participant answer to a standard format
-            String normalizedParticipantAnswer = participantAnswer.trim().toLowerCase();
+            // Ensure we handle null values and trim whitespace
+            String normalizedParticipantAnswer = participantAnswer != null ? participantAnswer.trim().toLowerCase() : "";
             boolean participantBoolAnswer;
 
             // Check for various true values
@@ -670,6 +669,41 @@ public class QuizServiceImpl implements QuizService {
 
             System.out.println("VF question - normalized values - correctAnswer: " + correctAnswer + ", participantAnswer: " + participantBoolAnswer);
 
+            // Direct string comparison for debugging
+            String correctAnswerStr = correctAnswerObj.toString().trim().toLowerCase();
+            System.out.println("Direct string comparison - correctAnswerStr: '" + correctAnswerStr + "', participantAnswer: '" + normalizedParticipantAnswer + "'");
+
+            // Check if the participant's answer matches any of the accepted true/false values
+            boolean isTrue = normalizedParticipantAnswer.equals("true") || 
+                            normalizedParticipantAnswer.equals("vrai") || 
+                            normalizedParticipantAnswer.equals("v") ||
+                            normalizedParticipantAnswer.equals("1") ||
+                            normalizedParticipantAnswer.equals("yes") ||
+                            normalizedParticipantAnswer.equals("oui") ||
+                            normalizedParticipantAnswer.equals("t") ||
+                            // Also check for case variations
+                            normalizedParticipantAnswer.equalsIgnoreCase("true") ||
+                            normalizedParticipantAnswer.equalsIgnoreCase("vrai");
+
+            boolean isFalse = normalizedParticipantAnswer.equals("false") || 
+                             normalizedParticipantAnswer.equals("faux") || 
+                             normalizedParticipantAnswer.equals("f") ||
+                             normalizedParticipantAnswer.equals("0") ||
+                             normalizedParticipantAnswer.equals("no") ||
+                             normalizedParticipantAnswer.equals("non") ||
+                             normalizedParticipantAnswer.equals("n") ||
+                             // Also check for case variations
+                             normalizedParticipantAnswer.equalsIgnoreCase("false") ||
+                             normalizedParticipantAnswer.equalsIgnoreCase("faux");
+
+            // If the participant's answer is a recognized true/false value, compare it with the correct answer
+            if (isTrue || isFalse) {
+                boolean result = (isTrue == correctAnswer);
+                System.out.println("Recognized true/false value - result: " + result);
+                return result;
+            }
+
+            // Fall back to the boolean comparison
             return correctAnswer == participantBoolAnswer;
         } catch (Exception e) {
             System.err.println("Error checking VF answer: " + e.getMessage());
