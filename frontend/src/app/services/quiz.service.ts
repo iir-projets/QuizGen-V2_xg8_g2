@@ -2,14 +2,16 @@ import {Observable, throwError} from 'rxjs';
 import {AuthService} from '../auth/auth.service';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {catchError, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {Router} from '@angular/router';
+import {Quiz} from '../shared/model/Quiz.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuizService {
   private apiUrl = 'http://localhost:8080/api/quizzes';
+  private apiUrlParticipant = 'http://localhost:8080/api/participant/quizzes';
 
   constructor(
     private http: HttpClient,
@@ -169,6 +171,162 @@ export class QuizService {
           });
         }
         return throwError(() => error.error?.message || 'Error fetching quizzes');
+      })
+    );
+  }
+
+
+  /*  getPublicQuizzes(): Observable<Quiz[]> {
+      return this.http.get<Quiz[]>(`${this.apiUrl}/public`);
+    }*/
+  /*
+    getQuizById(id: number): Observable<Quiz> {
+      return this.http.get<Quiz>(`${this.apiUrl}/${id}`);
+
+    }*/
+
+  /////////////////// khaoula
+
+
+  getPublicQuizzes(): Observable<Quiz[]> {
+    return this.http.get<Quiz[]>(`${this.apiUrlParticipant}/public`).pipe(
+      map(quizzes => quizzes.map(quiz => this.transformQuiz(quiz)))
+    );
+  }
+
+  private transformQuiz(quiz: any): Quiz {
+    const questions = JSON.parse(quiz.questions);
+    const questionCount = questions.length;
+
+    // Déduire la difficulté basée sur le temps et le nombre de questions
+    const timeInMinutes = this.parseTimeToMinutes(quiz.timeLimit);
+    let difficulty: 'Facile' | 'Moyen' | 'Difficile' = 'Moyen';
+
+    if (timeInMinutes < 5 && questionCount < 10) {
+      difficulty = 'Facile';
+    } else if (timeInMinutes > 15 || questionCount > 20) {
+      difficulty = 'Difficile';
+    }
+
+    // Créer une catégorie basée sur le domaine
+    const categories = ['CultureG', 'Techno', 'Science', 'Histoire'];
+    const category = categories[quiz.domaine % categories.length];
+
+    return {
+      ...quiz,
+      category,
+      difficulty,
+      questionCount,
+      publishDate: this.formatDate(quiz.publishDate)
+    };
+  }
+
+  private parseTimeToMinutes(timeLimit: string): number {
+    if (!timeLimit) return 0;
+    const parts = timeLimit.split(':').map(Number);
+    return parts[0] * 60 + parts[1] + parts[2] / 60;
+  }
+
+  private formatDate(dateString: string): string {
+    if (!dateString) return 'Date inconnue';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+
+  getQuizById(id: number): Observable<Quiz> {
+    const token = this.authService.getToken();
+
+    if (!token) {
+      this.router.navigate(['/login']);
+      return throwError(() => 'Not authenticated');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Quiz>(`${this.apiUrlParticipant}/${id}`, {headers}).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          this.router.navigate(['/login'], {
+            queryParams: {reason: 'session_expired'}
+          });
+        }
+        return throwError(() => error.error?.message || 'Error fetching quiz');
+      })
+    );
+  }
+
+/*  submitQuiz(quizId: number, response: any): Observable<any> {
+    const token = this.authService.getToken();
+
+    if (!token) {
+      console.error('No token available');
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      return throwError(() => 'Not authenticated');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    console.log('Submitting quiz with token:', token.substring(0, 20) + '...'); // Debug
+
+    return this.http.post(`${this.apiUrlParticipant}/${quizId}/submit`, response, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error submitting quiz:', error);
+        console.error('Status:', error.status, error.statusText);
+        console.error('Error message:', error.error?.message);
+
+        if (error.status === 401) {
+          console.log('Session expired, redirecting to login...');
+          this.authService.logout();
+          this.router.navigate(['/login'], {
+            queryParams: { reason: 'session_expired' }
+          });
+          return throwError(() => 'Session expired');
+        }
+
+        return throwError(() => error.error?.message || 'Error submitting quiz');
+      })
+    );
+  }*/
+  submitQuiz(quizId: number, response: any): Observable<any> {
+    const token = this.authService.getToken();
+
+    if (!token) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('No token available'));
+    }
+
+    // Ajoutez ce log pour vérifier le token
+    console.log('Token being sent:', token);
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post(`${this.apiUrlParticipant}/${quizId}/submit`, response, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Full error response:', error);
+
+        if (error.status === 401) {
+          this.authService.logout();
+          this.router.navigate(['/login'], {
+            queryParams: { reason: 'session_expired' }
+          });
+        }
+        return throwError(() => error.error?.message || 'Error submitting quiz');
       })
     );
   }

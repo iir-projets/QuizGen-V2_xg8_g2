@@ -66,46 +66,43 @@ export class AuthInterceptor implements HttpInterceptor {
 */
 
 // Auth.Interceptor.ts
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse
-} from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, switchMap, filter, take } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
+import {Injectable} from '@angular/core';
+import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, switchMap} from 'rxjs/operators';
+import {AuthService} from './auth.service';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
-
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Skip adding token for auth requests
-    if (request.url.includes('/api/auth/')) {
-      return next.handle(request);
-    }
-
-    const token = this.authService.getToken();
-    if (token) {
-      request = this.addToken(request, token);
-    }
-
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && !request.url.includes('/api/auth/')) {
-          return this.handle401Error(request, next);
-        }
-        return throwError(() => error);
-      })
-    );
+  ) {
   }
+
+  /*
+    intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+      // Skip adding token for auth requests
+      if (request.url.includes('/api/auth/')) {
+        return next.handle(request);
+      }
+
+      const token = this.authService.getToken();
+      if (token) {
+        request = this.addToken(request, token);
+      }
+
+      return next.handle(request).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401 && !request.url.includes('/api/auth/')) {
+            return this.handle401Error(request, next);
+          }
+          return throwError(() => error);
+        })
+      );
+    }
+  */
 
   private addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
     return request.clone({
@@ -145,5 +142,29 @@ export class AuthInterceptor implements HttpInterceptor {
       });
       return throwError(() => new Error('Session expired'));
     }
+  }
+
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = this.authService.getToken();
+
+    if (token) {
+      request = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }
+
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          this.router.navigate(['/login'], {
+            queryParams: {reason: 'session_expired'}
+          });
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

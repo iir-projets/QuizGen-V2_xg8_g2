@@ -3,7 +3,11 @@
   <div class="top-bar">
     <div class="logo">QuizGen</div>
     <div class="user-menu">
-      <span class="username">Participant</span>
+      <button class="history-btn" (click)="navigateToHistory()">
+        <span class="history-icon">📊</span>
+        Mon Historique
+      </button>
+      <span class="username"></span>
       <div class="avatar">👤</div>
     </div>
   </div>
@@ -31,43 +35,49 @@
       </div>
     </div>
 
-    <div *ngIf="filteredQuizzes.length > 0; else noResults" class="quiz-grid">
-      <div *ngFor="let quiz of filteredQuizzes" class="quiz-card" [routerLink]="['/quiz', quiz.id]">
-        <div class="quiz-header">
-          <div class="category">{{ quiz.category }}</div>
-          <div class="difficulty" [style.background-color]="getDifficultyColor(quiz.difficulty)">
-            {{ quiz.difficulty }}
-          </div>
-        </div>
-
-        <h3 class="quiz-title">{{ quiz.title }}</h3>
-        <p class="quiz-description">{{ quiz.description }}</p>
-
-        <div class="quiz-meta">
-          <div class="meta-item">
-            <span class="meta-icon">⏱️</span>
-            {{ quiz.timeLimit }}
-          </div>
-          <div class="meta-item">
-            <span class="meta-icon">❓</span>
-            {{ quiz.questionCount }} questions
-          </div>
-          <div class="meta-item">
-            <span class="meta-icon">📅</span>
-            {{ quiz.publishDate }}
-          </div>
-        </div>
-
-        <div class="quiz-status">
-          {{ quiz.isPublic ? 'Public' : 'Privé' }}
-        </div>
-      </div>
+    <div *ngIf="isLoading" class="loading">
+      <p>Chargement des quiz...</p>
     </div>
 
-    <ng-template #noResults>
-      <div class="no-results">
-        <p>Aucun quiz ne correspond à votre recherche.</p>
+    <div *ngIf="!isLoading">
+      <div *ngIf="filteredQuizzes.length > 0; else noResults" class="quiz-grid">
+        <div *ngFor="let quiz of filteredQuizzes" class="quiz-card" (click)="navigateToQuiz(quiz.id)">
+          <div class="quiz-header">
+            <div class="category">{{ quiz.category }}</div>
+            <div class="difficulty" [style.background-color]="getDifficultyColor(quiz.difficulty)">
+              {{ quiz.difficulty }}
+            </div>
+          </div>
+
+          <h3 class="quiz-title">{{ quiz.title }}</h3>
+          <p class="quiz-description">{{ quiz.description }}</p>
+
+          <div class="quiz-meta">
+            <div class="meta-item">
+              <span class="meta-icon">⏱️</span>
+              {{ quiz.timeLimit || 'Non spécifié' }}
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">❓</span>
+              {{ quiz.questionCount }} questions
+            </div>
+   <!--         <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              {{ quiz.publishDate }}
+            </div>-->
+          </div>
+
+          <div class="quiz-status">
+            {{ quiz.isPublic ? 'Public' : 'Privé' }}
+          </div>
+        </div>
       </div>
-    </ng-template>
+
+      <ng-template #noResults>
+        <div class="no-results">
+          <p>Aucun quiz ne correspond à votre recherche.</p>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>
