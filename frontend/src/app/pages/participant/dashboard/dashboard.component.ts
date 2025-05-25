@@ -145,7 +145,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (quizzes) => {
           // Sort by date and take the 3 most recent
           this.recentQuizzes = quizzes
-            .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+            .sort((a, b) => {
+              // Use publishDate instead of createdAt since it exists in the Quiz interface
+              // Get timestamps for comparison, handling different date formats
+              const getTimestamp = (dateValue: any): number => {
+                if (!dateValue) return 0;
+
+                if (typeof dateValue === 'number') {
+                  return dateValue;
+                }
+
+                // Try parsing as Date object
+                const date = new Date(dateValue);
+                if (!isNaN(date.getTime())) {
+                  return date.getTime();
+                }
+
+                // Try parsing as timestamp string
+                const timestamp = parseInt(dateValue);
+                if (!isNaN(timestamp)) {
+                  return timestamp;
+                }
+
+                // If all else fails, return 0
+                console.error('Invalid date format for sorting:', dateValue);
+                return 0;
+              };
+
+              const dateA = getTimestamp(a.publishDate);
+              const dateB = getTimestamp(b.publishDate);
+              return dateB - dateA;
+            })
             .slice(0, 3);
           this.loading.recentQuizzes = false;
         },
@@ -189,9 +219,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (history) => {
           this.recentActivity = history.map(item => ({
             id: item.quizId,
-            type: 'quiz_completed',
+            type: 'quiz_completed' as 'quiz_completed', // Explicitly cast to the union type
             title: item.title,
-            date: this.formatDate(new Date(item.date)),
+            date: this.formatDate(item.date),
             score: item.score,
             passed: item.passed
           })).slice(0, 5);
@@ -228,8 +258,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return '3h 45m';
   }
 
-  private formatDate(date: Date): string {
-    return date.toLocaleDateString('fr-FR', {
+  private formatDate(date: Date | string | number): string {
+    // Handle invalid or null dates
+    if (!date) {
+      return 'Date inconnue';
+    }
+
+    // Create a valid Date object
+    let validDate: Date;
+
+    if (date instanceof Date) {
+      validDate = date;
+    } else if (typeof date === 'number') {
+      // Handle timestamp (number of milliseconds since Unix epoch)
+      validDate = new Date(date);
+    } else {
+      // Handle ISO string or other string formats
+      // Try parsing as ISO string first
+      validDate = new Date(date);
+
+      // If invalid, try parsing as timestamp
+      if (isNaN(validDate.getTime())) {
+        const timestamp = parseInt(date);
+        if (!isNaN(timestamp)) {
+          validDate = new Date(timestamp);
+        }
+      }
+
+      // If still invalid, return a placeholder
+      if (isNaN(validDate.getTime())) {
+        console.error('Invalid date format:', date);
+        return 'Date invalide';
+      }
+    }
+
+    // Format the date using toLocaleDateString
+    return validDate.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'

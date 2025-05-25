@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../auth/auth.service';
@@ -30,7 +30,7 @@ interface QuizResult {
 @Component({
   selector: 'app-quiz',
   templateUrl: './quiz.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   styleUrls: ['./quiz.component.css'],
   standalone: true
 })
@@ -47,6 +47,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   loading = true;
   private subscriptions: Subscription[] = [];
 
+  // User information
+  username: string | null = null;
+  userAvatar: string | null = null;
+  userInitials: string = 'P';
+
+  // Sidebar state
+  sidebarActive: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private quizService: QuizService,
@@ -61,6 +69,42 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizId = quizId;
       this.loadQuiz(quizId);
     });
+    this.loadUserInfo();
+  }
+
+  loadUserInfo(): void {
+    // Get user from auth service
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.username = currentUser.name || currentUser.email || 'Participant';
+      // Generate initials from name or email
+      this.userInitials = this.getInitials(this.username);
+      // You can set avatar URL here if available in the future
+      // this.userAvatar = currentUser.avatarUrl;
+    } else {
+      this.username = 'Participant';
+      this.userInitials = 'P';
+    }
+  }
+
+  getInitials(name: string | null): string {
+    if (!name) return 'P';
+
+    const parts = name.split(' ');
+    if (parts.length === 1) {
+      return parts[0].charAt(0).toUpperCase();
+    }
+
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarActive = !this.sidebarActive;
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   loadQuiz(quizId: number): void {
@@ -160,8 +204,8 @@ export class QuizComponent implements OnInit, OnDestroy {
             reponseCorrecte = q.reponseCorrecte === 1;
           }
 
-          // For VF questions, correctAnswer should be 'true' or 'false'
-          correctAnswer = reponseCorrecte != null ? (reponseCorrecte ? 'true' : 'false') : undefined;
+          // For VF questions, correctAnswer should be 'Vrai' or 'Faux'
+          correctAnswer = reponseCorrecte != null ? (reponseCorrecte ? 'Vrai' : 'Faux') : undefined;
           console.log(`VF question ${id}: Parsed reponseCorrecte:`, reponseCorrecte, 'correctAnswer:', correctAnswer);
         }
 
@@ -283,15 +327,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           const normalizedAnswer = answer.toLowerCase().trim();
 
           if (normalizedAnswer === 'true' || normalizedAnswer === 'vrai' || normalizedAnswer === '1') {
-            this.selectedAnswers[questionId] = 'true';
-            console.log(`Selected VF answer for question ${questionId}: ${answer} -> true`);
+            this.selectedAnswers[questionId] = 'Vrai';
+            console.log(`Selected VF answer for question ${questionId}: ${answer} -> Vrai`);
           } else if (normalizedAnswer === 'false' || normalizedAnswer === 'faux' || normalizedAnswer === '0') {
-            this.selectedAnswers[questionId] = 'false';
-            console.log(`Selected VF answer for question ${questionId}: ${answer} -> false`);
+            this.selectedAnswers[questionId] = 'Faux';
+            console.log(`Selected VF answer for question ${questionId}: ${answer} -> Faux`);
           } else {
             // Default to false for any unrecognized value
-            this.selectedAnswers[questionId] = 'false';
-            console.log(`Selected VF answer for question ${questionId}: ${answer} -> false (default)`);
+            this.selectedAnswers[questionId] = 'Faux';
+            console.log(`Selected VF answer for question ${questionId}: ${answer} -> Faux (default)`);
           }
         } else if (question.type === 'qcm') {
           // For QCM questions, try to match with an option
@@ -438,15 +482,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         const normalizedAnswer = answer.toLowerCase().trim();
 
         if (normalizedAnswer === 'true' || normalizedAnswer === 'vrai' || normalizedAnswer === '1') {
-          formattedAnswers[questionId] = 'true';
-          console.log(`VF question ${questionId}: Normalized "${answer}" to "true"`);
+          formattedAnswers[questionId] = 'Vrai';
+          console.log(`VF question ${questionId}: Normalized "${answer}" to "Vrai"`);
         } else if (normalizedAnswer === 'false' || normalizedAnswer === 'faux' || normalizedAnswer === '0') {
-          formattedAnswers[questionId] = 'false';
-          console.log(`VF question ${questionId}: Normalized "${answer}" to "false"`);
+          formattedAnswers[questionId] = 'Faux';
+          console.log(`VF question ${questionId}: Normalized "${answer}" to "Faux"`);
         } else {
           // Default to false for any other value
-          formattedAnswers[questionId] = 'false';
-          console.log(`VF question ${questionId}: Unrecognized value "${answer}", defaulting to "false"`);
+          formattedAnswers[questionId] = 'Faux';
+          console.log(`VF question ${questionId}: Unrecognized value "${answer}", defaulting to "Faux"`);
         }
       } else if (question.type === 'qcm') {
         // For QCM questions, ensure the answer matches one of the options exactly
