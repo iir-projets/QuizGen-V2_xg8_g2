@@ -1,0 +1,29 @@
+name: Angular CI
+
+on:
+  push:
+    branches: [ main, develop ]  # Déclenche le CI sur push vers main ou develop
+  pull_request:
+    branches: [ main, develop ]  # Déclenche le CI sur PR vers main ou develop
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest  # Exécute le workflow sur une machine Ubuntu
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Récupère le code du dépôt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # Version de Node.js (Angular 17+ nécessite Node 18+)
+
+      - name: Install dependencies
+        run: npm ci  # Installe les dépendances de manière reproductible (comme `npm install` mais plus strict)
+
+      - name: Run tests
+        run: npm test  # Exécute les tests (Karma/Jasmine)
+
+      - name: Build Angular project
+        run: npm run build  # Build le projet en mode production
