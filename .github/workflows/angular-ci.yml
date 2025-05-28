@@ -20,8 +20,9 @@ jobs:
           node-version: '20'  # Version de Node.js (Angular 17+ nécessite Node 18+)
 
       - name: Install dependencies
-        run: npm ci  # Installe les dépendances de manière reproductible (comme `npm install` mais plus strict)
-
+        run: |
+          npm install
+          npm ci
       - name: Run tests
         run: npm test  # Exécute les tests (Karma/Jasmine)
 
