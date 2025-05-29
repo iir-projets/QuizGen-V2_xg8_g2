@@ -1,0 +1,23 @@
+trigger:
+  - main  # Déclenche le déploiement sur push vers `main`
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  - script: npm ci
+    displayName: 'Install dependencies'
+
+  - script: npm run build -- --configuration=production
+    displayName: 'Build Angular app'
+
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: 'subscription'  # Lier dans Azure DevOps
+      appName: 'Quizz'
+      package: 'dist/C:\Users\Nisrine\Desktop\EMSI\Virtualisation\QuizGen-V2_xg8_g2\frontend'  # Dossier de build
